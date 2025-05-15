@@ -15,8 +15,8 @@ body {
 
 .container {
     display: flex;
-    width: 900px;
-    height: 500px;
+    width: 1000px;
+    height: 600px;
     background-color: white;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
@@ -69,30 +69,42 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
 }
 
 .right-section h1 {
     font-size: 24px;
     color: #1e90ff;
     margin-bottom: 10px;
+    text-align: center;
+    margin-top: 30px;
 }
 
 .right-section h2 {
-    font-size: 20px;
-    margin-bottom: 20px;
+    font-size: 32px;
+    color: #1e90ff;
+    margin-bottom: 30px;
+    text-align: center;
 }
 
 .right-section form {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    width: 80%;
+    max-width: 400px;
+    padding: 0; /* Đảm bảo không có padding làm lệch */
 }
 
 .right-section input {
-    padding: 10px;
+    padding: 15px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    outline: none; /* Loại bỏ outline mặc định khi focus */
 }
 
 .password-container {
@@ -101,7 +113,7 @@ body {
 
 .eye-icon {
     position: absolute;
-    right: 10px;
+    right: 15px;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
@@ -112,12 +124,46 @@ body {
     justify-content: space-between;
     align-items: center;
     font-size: 14px;
+    color: #333;
+    width: 100%;
+    margin-top: 5px;
+    padding: 0; /* Loại bỏ padding */
+    margin-left: 0; /* Loại bỏ margin */
 }
 
 .options label {
     display: flex;
     align-items: center;
     gap: 5px;
+    margin: 0; /* Loại bỏ margin của label */
+}
+
+.options input[type="checkbox"] {
+    margin: 0; /* Loại bỏ margin mặc định của checkbox */
+    padding: 0; /* Loại bỏ padding mặc định của checkbox */
+    border: none; /* Loại bỏ border mặc định */
+    outline: none; /* Loại bỏ outline khi focus */
+    appearance: none; /* Loại bỏ giao diện mặc định của checkbox */
+    width: 16px; /* Đặt kích thước cố định cho checkbox */
+    height: 16px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    position: relative;
+    cursor: pointer;
+}
+
+.options input[type="checkbox"]:checked {
+    background-color: #1e90ff; /* Màu khi checkbox được chọn */
+}
+
+.options input[type="checkbox"]:checked::after {
+    content: '✓'; /* Thêm dấu tick khi checkbox được chọn */
+    color: white;
+    font-size: 12px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .forgot-password {
@@ -130,13 +176,15 @@ body {
 }
 
 .login-btn {
-    padding: 10px;
+    padding: 15px;
     background-color: #1e90ff;
     color: white;
     border: none;
     border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
 }
 
 .login-btn:hover {
@@ -145,8 +193,8 @@ body {
 
 .right-section p {
     margin-top: 20px;
-    text-align: center;
     font-size: 14px;
+    color: black;
 }
 
 .right-section p a {
@@ -156,4 +204,41 @@ body {
 
 .right-section p a:hover {
     text-decoration: underline;
+}
+
+.divider {
+    text-align: center;
+    color: #999;
+    margin: 20px 0;
+    position: relative;
+    width: 100%;
+}
+
+.divider:before,
+.divider:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 30%;
+    height: 1px;
+    background: #ccc;
+}
+
+.divider:before {
+    left: 0;
+}
+
+.divider:after {
+    right: 0;
+}
+
+.social-login {
+    text-align: center;
+    width: 100%;
+    margin-top: -30px;
+}
+
+.google-icon {
+    width: 70px;
+    height: 70px;
 }
