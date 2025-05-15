@@ -5,81 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Short Video Creator - Homepage</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="header.css">
-    <link rel="stylesheet" href="homepage.css">
+    <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/homepage.css">
 </head>
 <body class="font-sans">
-    <!-- Header (Phần đầu cố định) -->
-    <header class="fixed top-0 left-0 w-full bg-gray-800 text-white flex justify-between items-center p-4 z-10">
-        <div class="flex space-x-4">
+    <div class="main-container  ">
+        <!-- Header (Phần đầu cố định) -->
+        <header class="fixed top-0  w-full bg-gray-800 text-white flex justify-between items-center p-4 z-10 main-container">
+            <div class="flex space-x-4">
             <button class="focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-                </svg>
-            </button>
-            <button class="hover:text-gray-300">Video</button>
-            <button class="hover:text-gray-300">Kịch bản</button>
-            <button class="hover:text-gray-300">Hình ảnh</button>
-        </div>
-        <div id="userInitial" class="user-initial">U</div>
-    </header>
-
-    <!-- Main Content (Phần thân) -->
-    <main class="pt-20 flex mt-16">
-        <div class="w-2/3 p-4">
-            <h2 class="text-xl font-bold mb-4">Các chủ đề xu hướng hiện nay</h2>
-            <ul class="space-y-2">
-                <li class="flex items-center justify-between bg-gray-100 p-2 rounded">
-                    <span>Chủ đề 1 (dữ liệu từ API)</span>
-                    <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Use</button>
-                </li>
-                <li class="flex items-center justify-between bg-gray-100 p-2 rounded">
-                    <span>Chủ đề 2 (dữ liệu từ API)</span>
-                    <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Use</button>
-                </li>
-                <li class="flex items-center justify-between bg-gray-100 p-2 rounded">
-                    <span>Chủ đề 3 (dữ liệu từ API)</span>
-                    <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Use</button>
-                </li>
-            </ul>
-        </div>
-        <div class="w-1/3 p-4 flex items-center justify-center">
-            <button id="userButton" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">User</button>
-        </div>
-    </main>
-
-    <!-- Footer (Phần cuối) -->
-    <footer class="mt-4 p-4 bg-gray-200">
-        <div class="border-2 border-gray-300 p-4 rounded-lg">
-            <h3 class="text-lg font-semibold mb-2">Input script</h3>
-            <div class="flex space-x-2 mb-2">
-                <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Create Script</span>
-                <span class="bg-red-200 text-red-800 px-2 py-1 rounded">Create Video</span>
-            </div>
-            <div class="flex items-center space-x-2">
-                <input type="text" placeholder="Nhập nội dung..." class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <button class="send-button">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path>
-                    </svg>
+                    <!-- Thay thế SVG bằng Iconify icon -->
+                    <iconify-icon 
+                        icon="mdi:menu" 
+                        style="color: white;" 
+                        width="30" 
+                        height="30"
+                    ></iconify-icon>
                 </button>
+                <button class="nav-button text-white hover:text-gray-300" style="left:15px">Video</button>
+                <button class="nav-button text-white hover:text-gray-300"style="left:30px">Kịch bản</button>
+                <button class="nav-button text-white hover:text-gray-300"style="left:50px">Hình ảnh</button>
             </div>
-        </div>
-    </footer>
+            <div id="userInitial" class="user-initial">U</div>
+        </header>
 
-    <script>
-        // Giả lập đăng nhập để hiển thị chữ đầu tiên của username
-        const username = "User123";
-        const userInitial = document.getElementById("userInitial");
-        if (username) {
-            userInitial.textContent = username.charAt(0).toUpperCase();
-        }
+       <!-- Main Content (Phần thân) -->
+        <main class="pt-20 flex mt-16">
+            <div class="w-2/3 p-4">
+                <h2 class="text-xl font-bold mb-4">Các chủ đề xu hướng hiện nay</h2>
+                <ul class="space-y-2">
+                    <li class="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
+                        <span>Chủ đề 1 (dữ liệu từ API)</span>
+                        <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Use</button>
+                    </li>
+                    <li class="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
+                        <span>Chủ đề 2 (dữ liệu từ API)</span>
+                        <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Use</button>
+                    </li>
+                    <li class="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
+                        <span>Chủ đề 3 (dữ liệu từ API)</span>
+                        <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Use</button>
+                    </li>
+                </ul>
+            </div>
+          
+        </main>
 
-        // Xử lý nút User
-        const userButton = document.getElementById("userButton");
-        userButton.addEventListener("click", () => {
-            alert("User profile clicked!");
-        });
-    </script>
+        <!-- Footer (Phần cuối) -->
+      <!-- Footer (Phần cuối) -->
+        <footer class="mt-4 p-4 bg-gray-200">
+            <div class="border-2 border-gray-300 p-4 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">Input script</h3>
+                <div class="flex space-x-2 mb-2 action-buttons">
+                    <span class="create-script bg-white text-black px-2 py-1 rounded cursor-pointer">Create Script</span>
+                    <span class="create-video bg-white text-black px-2 py-1 rounded cursor-pointer">Create Video</span>
+                </div>
+                <div class="flex items-center space-x-2 mt-2">
+                    <input type="text" id="inputScript" placeholder="Nhập nội dung..." class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <span id="charCount" class="text-sm text-gray-600 ml-2">0/3000</span>
+                    <button class="send-button">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+   <script src="./javascript/hompage.js"></script>
 </body>
 </html>
