@@ -69,7 +69,10 @@
 			<version>${lombok-mapstruct-binding.version}</version>
 			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
 		<!-- Test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
