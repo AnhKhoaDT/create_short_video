@@ -1,0 +1,6 @@
+/* app.css - Lớp CSS cơ bản nhất, chỉ đặt màu nền đen và không đè lên các style khác */
+body {
+    background-color: #f0e9ee;
+    margin: 0;
+    padding: 0;
+}

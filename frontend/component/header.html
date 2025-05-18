@@ -1,0 +1,67 @@
+  <!-- Header (Phần đầu cố định) -->
+        <header class="fixed top-0  w-full bg-gray-800 text-white flex justify-between items-center p-4 z-10 main-container">
+            <div class="flex space-x-4">
+            <button id="menu-toggle"class="focus:outline-none">
+                    <!-- Thay thế SVG bằng Iconify icon -->
+                    <iconify-icon 
+                        icon="mdi:menu" 
+                        style="color: white;" 
+                        width="30" 
+                        height="30"
+                    ></iconify-icon>
+                </button>
+                <button class="nav-button text-white hover:text-gray-300" style="left:15px">Video</button>
+                <button class="nav-button text-white hover:text-gray-300"style="left:30px">Kịch bản</button>
+                <button class="nav-button text-white hover:text-gray-300"style="left:50px">Hình ảnh</button>
+            </div>
+            <div id="userInitial" class="user-initial" style="margin-right: 15px;">U</div>
+        </header>
+        <!-- Sidebar Menu -->
+        <div id="sidebar" class="sidebar">
+            <!-- Header của sidebar -->
+            <div class="sidebar-header ">
+                <div class="sidebar-title"> 
+                    <span style="margin-left: 25px;">CreatorVideo</span>
+                </div>
+            </div>
+
+            <div class="separator"></div> <!-- Đường gạch ngang -->
+            <div class="sidebar-item">
+                <iconify-icon icon="mdi:home" width="20" height="20"></iconify-icon>
+                <span>Trang Chủ</span>
+            </div>
+            <div class="sidebar-item">
+                <iconify-icon icon="mdi:video" width="20" height="20"></iconify-icon>
+                <span>Video</span>
+            </div>
+            <div class="sidebar-item">
+                <iconify-icon icon="mdi:volume-high" width="20" height="20"></iconify-icon>
+                <span>Giọng đọc</span>
+            </div>
+            <div class="sidebar-item">
+                <iconify-icon icon="mdi:image" width="20" height="20"></iconify-icon>
+                <span>Hình ảnh</span>
+            </div>
+            <div class="sidebar-item">
+                <iconify-icon icon="mdi:microphone" width="20" height="20"></iconify-icon>
+                <span>Tạo Giọng đọc</span>
+            </div>
+            <div class="sidebar-item">
+                <iconify-icon icon="mdi:camera" width="20" height="20"></iconify-icon>
+                <span>Tạo Hình Ảnh</span>
+            </div>
+         
+            <div class="separator"></div> <!-- Đường gạch ngang -->
+            <div class="history-section">
+             <div class="history-item">
+                    <span>Lịch Sử</span>
+                </div>
+                <div class="history-item">
+                    <span>Con mèo đen tinh nghịch đã cài...</span>
+                </div>
+                <!-- Có thể thêm nhiều mục lịch sử khác nếu cần -->
+            </div>
+        </div>
+
+        <!-- Overlay để đóng menu khi nhấp bên ngoài -->
+        <div id="overlay" class="overlay"></div>

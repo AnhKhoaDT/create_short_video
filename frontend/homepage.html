@@ -8,30 +8,15 @@
     <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
     <link rel="stylesheet" href="./css/header.css">
     <link rel="stylesheet" href="./css/homepage.css">
+    <link rel="stylesheet" href="./css/app.css">
 </head>
 <body class="font-sans">
     <div class="main-container  ">
-        <!-- Header (Phần đầu cố định) -->
-        <header class="fixed top-0  w-full bg-gray-800 text-white flex justify-between items-center p-4 z-10 main-container">
-            <div class="flex space-x-4">
-            <button class="focus:outline-none">
-                    <!-- Thay thế SVG bằng Iconify icon -->
-                    <iconify-icon 
-                        icon="mdi:menu" 
-                        style="color: white;" 
-                        width="30" 
-                        height="30"
-                    ></iconify-icon>
-                </button>
-                <button class="nav-button text-white hover:text-gray-300" style="left:15px">Video</button>
-                <button class="nav-button text-white hover:text-gray-300"style="left:30px">Kịch bản</button>
-                <button class="nav-button text-white hover:text-gray-300"style="left:50px">Hình ảnh</button>
-            </div>
-            <div id="userInitial" class="user-initial">U</div>
-        </header>
+
+        <div id="header-placeholder"></div>
 
        <!-- Main Content (Phần thân) -->
-        <main class="pt-20 flex mt-16">
+        <main class="pt-20 flex mt-16" style="padding-top: 1rem;">
             <div class="w-2/3 p-4">
                 <h2 class="text-xl font-bold mb-4">Các chủ đề xu hướng hiện nay</h2>
                 <ul class="space-y-2">
@@ -47,6 +32,7 @@
                         <span>Chủ đề 3 (dữ liệu từ API)</span>
                         <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Use</button>
                     </li>
+        
                 </ul>
             </div>
           
@@ -73,6 +59,8 @@
             </div>
         </footer>
     </div>
+    <script src="./javascript/header.js"></script>
    <script src="./javascript/hompage.js"></script>
+ 
 </body>
 </html>

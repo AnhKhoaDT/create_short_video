@@ -38,3 +38,76 @@
         .menu-icon {
             margin-right: 40px;
         }
+
+/*css cho sidebar"*/
+.sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px; /* Ẩn ban đầu */
+            width: 250px;
+            height: 100%;
+            background-color: #1f2937; /* Màu nền xám đậm giống invideo AI */
+            color: white;
+            transition: left 0.3s ease;
+            padding-top: 60px;
+            z-index: 20;
+        }
+        .sidebar.active {
+            left: 0; /* Hiện menu khi active */
+        }
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: bold; /* In đậm tiêu đề */
+            color: white;
+        }
+        .sidebar-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .sidebar-item:hover {
+            background-color: #374151; /* Màu nền khi hover */
+        }
+        .sidebar-item iconify-icon {
+            margin-right: 10px;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+        .overlay.active {
+            display: block;
+        }
+
+        /* Ẩn 3 nút trên màn hình nhỏ (dưới md: 768px) */
+        @media (max-width: 767px) {
+            .nav-button {
+                display: none;
+            }
+        }
+
+        .separator {
+            border-bottom: 1px solid #4b5563; /* Đường gạch ngang màu xám nhạt */
+            margin: 10px 20px;
+        }
+        .history-section {
+            padding: 10px 20px;
+            color: #d1d5db; /* Màu chữ nhạt cho lịch sử */
+        }
+        .history-item:first-child span {
+            font-weight: bold; /* In đậm chữ "Lịch Sử" */
+        }
+        .history-item {
+            padding: 5px 0;
+            cursor: pointer;
+        }
+        .history-item:hover {
+            color: #ffffff; /* Màu trắng khi hover */
+        }

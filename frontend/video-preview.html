@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem trước Video - AI Short Video Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/app.css">
+</head>
+<body class="font-sans">
+    <div class="main-container">
+        <div id="header-placeholder"></div>
+
+        <!-- Main Content -->
+        <main class="pt-20 flex mt-16 justify-center">
+            <div class="w-1/2 p-4">
+                <h2 class="text-2xl font-bold mb-6">Xem trước Video</h2>
+                <div class="video-player bg-gray-900 rounded-lg overflow-hidden relative">
+                    <!-- Video -->
+                    <video id="previewVideo" class="w-full h-auto">
+                        <source src="path/to/sample-video.mp4" type="video/mp4">
+                        Trình duyệt không hỗ trợ video.
+                    </video>
+                    <!-- Điều khiển video -->
+                    <div class="controls absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white p-2 flex items-center space-x-4">
+                        <!-- Nút Phát/Tạm dừng -->
+                        <button id="playPauseBtn" class="text-white hover:text-gray-300">
+                            <iconify-icon icon="mdi:play" width="24" height="24"></iconify-icon>
+                        </button>
+                        <!-- Thanh tiến trình -->
+                        <input type="range" id="seekBar" value="0" min="0" max="100" class="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                        <!-- Thời lượng -->
+                        <span id="currentTime" class="text-sm">0:00</span>
+                        <span class="text-sm">/</span>
+                        <span id="duration" class="text-sm">0:00</span>
+                        <!-- Nút Edit -->
+                        <button id="editBtn" class="text-white hover:text-gray-300">
+                            <iconify-icon icon="mdi:pencil" width="24" height="24"></iconify-icon>
+                        </button>
+                        <!-- Nút Download -->
+                        <button id="downloadBtn" class="text-white hover:text-gray-300">
+                            <iconify-icon icon="mdi:download" width="24" height="24"></iconify-icon>
+                        </button>
+                        <!-- Nút Toàn màn hình -->
+                        <button id="fullscreenBtn" class="text-white hover:text-gray-300">
+                            <iconify-icon icon="mdi:fullscreen" width="24" height="24"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="./javascript/header.js"></script>
+    <script src="./javascript/video-preview.js"></script>
+</body>
+</html>

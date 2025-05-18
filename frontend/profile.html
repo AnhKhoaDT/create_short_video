@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang ="vi">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Short Video Creator - Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/app.css">
+</head>
+<body class="font-sans">
+    <div class="main-container">
+        
+        <div id="header-placeholder"></div>
+        <!-- Main Content (Phần thân) -->
+        <main class="pt-20 flex mt-16 justify-center">
+            <div class="w-1/2 p-4">
+                <h2 class="text-xl font-bold mb-4">Hồ sơ cá nhân</h2>
+                <div class="space-y-4">
+                    <!-- Username -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tên người dùng</label>
+                        <input type="text" id="username" value="user123" class="w-full p-2 border rounded-lg" readonly>
+                    </div>
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="email" value="user@example.com" class="w-full p-2 border rounded-lg" readonly>
+                    </div>
+                    <!-- Phone -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Số điện thoại</label>
+                        <input type="text" id="phone" value="0123456789" class="w-full p-2 border rounded-lg" readonly>
+                    </div>
+                    <!-- Date of Birth -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Ngày sinh</label>
+                        <input type="date" id="dob" value="1990-01-01" class="w-full p-2 border rounded-lg" readonly>
+                    </div>
+                </div>
+                <!-- Buttons -->
+                <div class="flex space-x-2 mt-4">
+                    <button id="saveEditBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Chỉnh sửa</button>
+                    <button id="changePasswordBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Đổi mật khẩu</button>
+                    <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Đăng xuất</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="./javascript/profile.js"></script>
+   <script src="./javascript/header.js"></script>
+</html>
