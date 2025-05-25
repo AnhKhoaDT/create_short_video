@@ -36,7 +36,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Slf4j
 public class SecurityConfig {
 
-    private  final String[] PUBLIC_ENDPOINTS = {"/users","/auth/log-in","/auth/verify", "auth/logout","auth/refresh"};
+    private  final String[] PUBLIC_ENDPOINTS = {"/users","/auth/log-in","/auth/verify", "/auth/logout","/auth/refresh","/trends","trends/suggestions" };
 
 
     @Autowired
@@ -44,19 +44,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        log.info("Configuring SecurityFilterChain with public endpoints: {}", (Object[]) PUBLIC_ENDPOINTS);
         httpSecurity
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests ->
                 requests.requestMatchers(HttpMethod.POST , PUBLIC_ENDPOINTS).permitAll()
                         //.requestMatchers(HttpMethod.GET , "/users").hasRole(Role.ADMIN.name()) replace method
+                        .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated());
 
 
         httpSecurity.oauth2ResourceServer(oauth2 -> {
-            log.info("Configuring OAuth2 Resource Server with JWT");
             oauth2.jwt(jwt -> jwt
                             .decoder(customJwtDecoder) // Sử dụng CustomJwtDecoder
                             .jwtAuthenticationConverter(jwtAuthenticationConverter()))

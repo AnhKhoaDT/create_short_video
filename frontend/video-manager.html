@@ -5,109 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Video - AI Short Video Creator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
     <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/video-manager.css">
     <link rel="stylesheet" href="./css/app.css">
-    
+    <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
 </head>
 <body class="font-sans">
     <div class="main-container">
         <div id="header-placeholder"></div>
-         <!-- Main Content -->
-         <main class="pt-20 flex mt-16" style="margin-top: 0px;">
-            <div class="w-full p-4">
-                <h2 class="text-2xl font-bold mb-6">Quản lý Video Đã Tạo</h2>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
-                        <thead>
-                            <tr class="bg-gray-100 text-gray-700">
-                                <th class="py-3 px-4 text-left">Xem trước</th>
-                                <th class="py-3 px-4 text-left">Tên Video</th>
-                                <th class="py-3 px-4 text-left">Mô tả</th>
-                                <th class="py-3 px-4 text-center">Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Dòng danh sách video -->
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="py-3 px-4">
-                                    <div class="relative">
-                                        <video width="120" height="80" class="rounded-lg">
-                                            <source src="path/to/video1.mp4" type="video/mp4">
-                                            Trình duyệt không hỗ trợ video.
-                                        </video>
-                                        <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 py-0.5 rounded">3:45</span>
-                                    </div>
-                                </td>
-                                <td class="py-3 px-4">Video 1 - Mèo Đen Tinh Nghịch</td>
-                                <td class="py-3 px-4">Video mô tả về một chú mèo đen rất nghịch ngợm.</td>
-                                <td class="py-3 px-4 text-center">
-                                    <button class="text-blue-500 hover:text-blue-700 mr-2">
-                                        <iconify-icon icon="mdi:download" width="20" height="20"></iconify-icon>
-                                    </button>
-                                    <button class="text-yellow-500 hover:text-yellow-700 mr-2">
-                                        <iconify-icon icon="mdi:pencil" width="20" height="20"></iconify-icon>
-                                    </button>
-                                    <button class="text-red-500 hover:text-red-700">
-                                        <iconify-icon icon="mdi:delete" width="20" height="20"></iconify-icon>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="py-3 px-4">
-                                    <div class="relative">
-                                        <video width="120" height="80" class="rounded-lg">
-                                            <source src="path/to/video2.mp4" type="video/mp4">
-                                            Trình duyệt không hỗ trợ video.
-                                        </video>
-                                        <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 py-0.5 rounded">5:12</span>
-                                    </div>
-                                </td>
-                                <td class="py-3 px-4">Video 2 - Chuyến Đi Vui Vẻ</td>
-                                <td class="py-3 px-4">Video ghi lại chuyến đi chơi thú vị cùng gia đình.</td>
-                                <td class="py-3 px-4 text-center">
-                                    <button class="text-blue-500 hover:text-blue-700 mr-2">
-                                        <iconify-icon icon="mdi:download" width="20" height="20"></iconify-icon>
-                                    </button>
-                                    <button class="text-yellow-500 hover:text-yellow-700 mr-2">
-                                        <iconify-icon icon="mdi:pencil" width="20" height="20"></iconify-icon>
-                                    </button>
-                                    <button class="text-red-500 hover:text-red-700">
-                                        <iconify-icon icon="mdi:delete" width="20" height="20"></iconify-icon>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="py-3 px-4">
-                                    <div class="relative">
-                                        <video width="120" height="80" class="rounded-lg">
-                                            <source src="path/to/video3.mp4" type="video/mp4">
-                                            Trình duyệt không hỗ trợ video.
-                                        </video>
-                                        <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 py-0.5 rounded">2:30</span>
-                                    </div>
-                                </td>
-                                <td class="py-3 px-4">Video 3 - Bài Hát Yêu Thích</td>
-                                <td class="py-3 px-4">Video chứa bài hát yêu thích với giọng đọc AI.</td>
-                                <td class="py-3 px-4 text-center">
-                                    <button class="text-blue-500 hover:text-blue-700 mr-2">
-                                        <iconify-icon icon="mdi:download" width="20" height="20"></iconify-icon>
-                                    </button>
-                                    <button class="text-yellow-500 hover:text-yellow-700 mr-2">
-                                        <iconify-icon icon="mdi:pencil" width="20" height="20"></iconify-icon>
-                                    </button>
-                                    <button class="text-red-500 hover:text-red-700">
-                                        <iconify-icon icon="mdi:delete" width="20" height="20"></iconify-icon>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+        <main class="pt-20">
+            <section class="video-manager-section">
+                <div class="container mx-auto px-4 py-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <h1 class="text-3xl font-bold text-gray-800">Quản lý video</h1>
+                        <button class="create-video-btn">
+                            <iconify-icon icon="mdi:video-plus" class="mr-2"></iconify-icon>
+                            Tạo video mới
+                        </button>
+                    </div>
+                    <div id="videoList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Sample Video Card 1 -->
+                        <div class="video-card">
+                            <video class="video-thumb" src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" controls></video>
+                            <div class="video-title">Video Mẫu 1</div>
+                            <div class="video-desc">Mô tả ngắn về video mẫu thứ nhất. Đây là nội dung mô tả placeholder.</div>
+                            <div class="video-actions">
+                                <button class="download-btn"><iconify-icon icon="mdi:download"></iconify-icon> Tải xuống</button>
+                                <button class="edit-btn"><iconify-icon icon="mdi:pencil"></iconify-icon> Sửa</button>
+                                <button class="delete-btn"><iconify-icon icon="mdi:delete"></iconify-icon> Xóa</button>
+                            </div>
+                        </div>
+
+                        <!-- Sample Video Card 2 -->
+                        <div class="video-card">
+                            <video class="video-thumb" src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" controls></video>
+                            <div class="video-title">Video Mẫu 2 với Tên Dài Hơn</div>
+                            <div class="video-desc">Đây là mô tả cho video mẫu thứ hai, có thể dài hơn một chút để kiểm tra hiển thị.</div>
+                            <div class="video-actions">
+                                <button class="download-btn"><iconify-icon icon="mdi:download"></iconify-icon> Tải xuống</button>
+                                <button class="edit-btn"><iconify-icon icon="mdi:pencil"></iconify-icon> Sửa</button>
+                                <button class="delete-btn"><iconify-icon icon="mdi:delete"></iconify-icon> Xóa</button>
+                            </div>
+                        </div>
+
+                        <!-- Sample Video Card 3 -->
+                        <div class="video-card">
+                            <video class="video-thumb" src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" controls></video>
+                            <div class="video-title">Video Mẫu 3</div>
+                            <div class="video-desc">Mô tả ngắn gọn.</div>
+                            <div class="video-actions">
+                                <button class="download-btn"><iconify-icon icon="mdi:download"></iconify-icon> Tải xuống</button>
+                                <button class="edit-btn"><iconify-icon icon="mdi:pencil"></iconify-icon> Sửa</button>
+                                <button class="delete-btn"><iconify-icon icon="mdi:delete"></iconify-icon> Xóa</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </section>
         </main>
     </div>
-    <script src="./javascript/header.js"></script>
+
+    <!-- Modal xem trước video -->
+    <div id="previewModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <video id="previewVideo" controls class="w-full rounded-lg shadow"></video>
+            <h3 id="previewTitle" class="text-xl font-bold mt-4 mb-2"></h3>
+            <p id="previewDesc" class="text-gray-600 mb-4"></p>
+        </div>
+    </div>
+
     <script src="./javascript/video-manager.js"></script>
+    <script src="./javascript/header.js"></script>
 </body>
 </html>

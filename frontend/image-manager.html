@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Hình ảnh - AI Short Video Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/image-manager.css">
+    <link rel="stylesheet" href="./css/app.css">
+    <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
+</head>
+<body class="font-sans">
+    <div class="main-container">
+        <div id="header-placeholder"></div>
+
+        <!-- Main Content -->
+        <main>
+            <section class="image-manager-section" style="margin-top: 100px;">
+                <div class="manager-container">
+                    <div class="manager-header">
+                        <h2>Quản lý Hình ảnh</h2>
+                        <!-- Button to navigate to the image creation page -->
+                         <a href="image-create-from-script.html" class="create-new-button">
+                            <iconify-icon icon="mdi:plus-circle"></iconify-icon>
+                            Tạo hình ảnh mới
+                        </a>
+                    </div>
+
+                    <div id="image-list" class="image-grid">
+                        <!-- Image cards will be loaded here by JavaScript -->
+                        <!-- Example Image Card (can be removed once JS is implemented) -->
+                        <div class="image-card">
+                            <img src="https://via.placeholder.com/150" alt="Sample Image" class="image-thumbnail">
+                            <div class="image-details">
+                                <h3 class="image-title">Hình ảnh Mẫu 1</h3>
+                                <p class="image-description">Mô tả ngắn về hình ảnh.</p>
+                            </div>
+                            <div class="image-actions">
+                                <button class="action-button view-button">
+                                    <iconify-icon icon="mdi:eye"></iconify-icon>
+                                    Xem
+                                </button>
+                                <button class="action-button download-button">
+                                    <iconify-icon icon="mdi:download"></iconify-icon>
+                                    Tải xuống
+                                </button>
+                                <button class="action-button delete-button">
+                                    <iconify-icon icon="mdi:delete"></iconify-icon>
+                                    Xóa
+                                </button>
+                            </div>
+                        </div>
+                        <!-- End Example Image Card -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="./javascript/header.js"></script>
+    <script src="./javascript/image-manager.js"></script>
+</body>
+</html> 

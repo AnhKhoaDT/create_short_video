@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Kịch bản Video - AI Short Video Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/script-manager.css">
+    <link rel="stylesheet" href="./css/app.css">
+    <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
+</head>
+<body class="font-sans">
+    <div class="main-container">
+        <div id="header-placeholder"></div>
+
+        <!-- Main Content -->
+        <main>
+            <section class="script-manager-section" style="margin-top: 100px;">
+                <div class="manager-container">
+                    <div class="manager-header">
+                        <h2>Quản lý Kịch bản Video</h2>
+                        <!-- Button to navigate to the script creation page -->
+                         <a href="script-create.html" class="create-new-button">
+                            <iconify-icon icon="mdi:plus-circle"></iconify-icon>
+                            Tạo kịch bản mới
+                        </a>
+                    </div>
+
+                    <div id="script-list" class="script-list">
+                        <!-- Script entries will be loaded here by JavaScript -->
+                        <!-- Example Script Entry (can be removed once JS is implemented) -->
+                        <div class="script-entry">
+                            <div class="script-details">
+                                <h3 class="script-title">Kịch bản Mẫu 1</h3>
+                                <p class="script-summary">Tóm tắt nội dung kịch bản mẫu 1...</p>
+                            </div>
+                            <div class="script-actions">
+                                <button class="action-button edit-button">
+                                    <iconify-icon icon="mdi:pencil"></iconify-icon>
+                                    Sửa
+                                </button>
+                                <button class="action-button generate-video-button">
+                                    <iconify-icon icon="mdi:video-plus"></iconify-icon>
+                                    Tạo Video
+                                </button>
+                                <button class="action-button delete-button">
+                                    <iconify-icon icon="mdi:delete"></iconify-icon>
+                                    Xóa
+                                </button>
+                            </div>
+                        </div>
+                        <!-- End Example Script Entry -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="./javascript/header.js"></script>
+    <script src="./javascript/script-manager.js"></script>
+</body>
+</html> 

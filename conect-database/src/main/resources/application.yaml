@@ -3,7 +3,6 @@ server:
   servlet:
     context-path: /create-video-service
 
-
 spring:
   datasource:
     url: "jdbc:mysql://localhost:3306/create_service"
@@ -19,3 +18,5 @@ jwt:
   valid-duration: 3600 # s
   refreshable-duration: 36000 #s
 
+google:
+  api-key: "AIzaSyChfJLX7tJsS2bFfP03axS_ty6jJnZN8JM"

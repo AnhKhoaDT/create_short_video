@@ -22,7 +22,8 @@ public class Trend {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     String keyword;
-    String description;
+    String industry;
+    String status;
     LocalDate created_at;
-
+    LocalDate updated_at;
 }

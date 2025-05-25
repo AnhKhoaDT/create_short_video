@@ -1,0 +1,326 @@
+/* Video Preview Styles */
+
+.video-preview-section {
+    padding: 20px;
+    max-width: 900px;
+    margin: 20px auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.preview-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-header {
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.video-player-container {
+    position: relative; /* Needed for absolute positioning of controls */
+    width: 100%;
+    /* Maintain aspect ratio, e.g., 16:9 */
+    padding-top: 56.25%; /* 16:9 Aspect Ratio (div height / div width * 100) */
+    overflow: hidden;
+    background-color: black; /* Background for the video area */
+}
+
+/* Hide default video controls */
+.video-player-container video::-webkit-media-controls {
+    display: none !important;
+}
+
+.video-player-container video::-moz-media-controls {
+    display: none !important;
+}
+
+.video-player-container video::-ms-media-controls {
+    display: none !important;
+}
+
+.video-player-container video::media-controls {
+    display: none !important;
+}
+
+.video-player-container video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Ensure video fits within the container without stretching */
+}
+
+/* Custom controls styling */
+.custom-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent dark background */
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    box-sizing: border-box; /* Include padding in width */
+    opacity: 1; /* Visible by default */
+    transition: opacity 0.3s ease; /* Smooth fade effect */
+    z-index: 10; /* Ensure controls are above video */
+}
+
+/* Hide controls when video player container is not hovered or focused, 
+   but keep them visible for now for easier development/testing */
+/* .video-player-container:not(:hover) .custom-controls {
+    opacity: 0;
+} */
+
+.control-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.5rem; /* Icon size */
+    margin: 0 5px;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.control-btn:hover {
+    color: #007bff; /* Highlight color on hover */
+}
+
+.seek-bar {
+    flex-grow: 1; /* Take up available space */
+    margin: 0 10px;
+    cursor: pointer;
+    -webkit-appearance: none; /* Remove default styles */
+    appearance: none;
+    height: 5px;
+    background: #555; /* Darker track */
+    outline: none;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.seek-bar:hover {
+    opacity: 1;
+}
+
+/* Style for seek bar thumb */
+.seek-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    background: #fff; /* White thumb */
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.seek-bar::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.time {
+    font-size: 0.9rem;
+    margin: 0 5px;
+    color: white;
+}
+
+.volume-controls {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+    gap: 5px;
+}
+
+.volume-btn {
+    font-size: 1.5rem; /* Match other control icons */
+}
+
+.volume-slider {
+    width: 80px; /* Adjust width as needed */
+    margin-left: 5px;
+    cursor: pointer;
+    -webkit-appearance: none; /* Remove default styles */
+    appearance: none;
+    height: 5px;
+    background: #555;
+    outline: none;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.volume-slider:hover {
+    opacity: 1;
+}
+
+/* Style for volume slider thumb */
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.fullscreen-btn {
+    margin-left: auto; /* Push to the right */
+    font-size: 1.5rem; /* Icon size */
+}
+
+.video-info {
+    padding: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.video-info h3 {
+    margin-top: 0;
+    font-size: 1.5rem; /* Larger title */
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.video-info p {
+    font-size: 1rem; /* Normal description size */
+    color: #666;
+    line-height: 1.5;
+}
+
+.action-buttons-preview {
+    padding: 15px 20px;
+    background-color: #f1f1f1;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: center; /* Center buttons */
+    gap: 15px; /* Space between buttons */
+}
+
+.action-buttons-preview button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+.action-buttons-preview button iconify-icon {
+    margin-right: 8px;
+}
+
+.edit-btn {
+    background-color: #ffc107; /* Yellow for edit */
+    color: #333;
+}
+
+.edit-btn:hover {
+    background-color: #e0a800;
+}
+
+.download-btn {
+    background-color: #28a745; /* Green for download */
+    color: white;
+}
+
+.download-btn:hover {
+    background-color: #218838;
+}
+
+.delete-btn {
+    background-color: #dc3545; /* Red for delete */
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .video-preview-section {
+        padding: 15px;
+        margin: 15px;
+    }
+
+    .preview-header {
+        padding: 10px;
+        font-size: 1.1rem;
+    }
+
+    .video-info h3 {
+        font-size: 1.3rem;
+    }
+
+    .video-info p {
+        font-size: 0.95rem;
+    }
+
+    .action-buttons-preview {
+        flex-direction: column; /* Stack buttons vertically */
+        align-items: stretch; /* Make buttons fill width */
+        gap: 10px; /* Reduce gap */
+    }
+
+    .action-buttons-preview button {
+         justify-content: center; /* Center text and icon in stacked buttons */
+    }
+
+     .custom-controls {
+        flex-wrap: wrap; /* Allow controls to wrap on smaller screens */
+        justify-content: center; /* Center controls when wrapped */
+        gap: 5px 10px; /* Add gap between wrapped items */
+    }
+
+     .seek-bar {
+        width: 100%; /* Make seek bar full width when wrapped */
+        margin: 5px 0;
+    }
+
+     .time, .control-btn, .volume-controls, .fullscreen-btn {
+        margin: 0 2px;
+    }
+
+     .volume-controls {
+        margin-left: 2px; /* Adjust margin */
+     }
+
+     .volume-slider {
+        width: 60px; /* Reduce volume slider width */
+     }
+
+}

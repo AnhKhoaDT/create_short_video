@@ -48,4 +48,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Add click event listener to video cards
+    document.querySelectorAll('.video-card').forEach(card => {
+        card.addEventListener('click', function() {
+            // Get video info (you'll need to add data attributes to your video cards)
+            const videoId = this.dataset.videoId; // Assuming you add data-video-id="..."
+            const videoUrl = this.dataset.videoUrl; // Assuming you add data-video-url="..."
+            const videoTitle = this.querySelector('.video-title').textContent;
+            const videoDesc = this.querySelector('.video-desc').textContent;
+
+            // Store video info (using sessionStorage for simple use, localStorage is also an option)
+            sessionStorage.setItem('currentVideo', JSON.stringify({
+                id: videoId,
+                url: videoUrl,
+                title: videoTitle,
+                description: videoDesc
+            }));
+
+            // Redirect to video preview page
+            window.location.href = 'video-preview.html';
+        });
+    });
 });

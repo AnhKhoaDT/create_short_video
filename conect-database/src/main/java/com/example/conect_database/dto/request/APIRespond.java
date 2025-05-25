@@ -10,6 +10,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Setter
+@Getter
 public class APIRespond <T>{
     T data;// dữ liệu trả về
     int code;

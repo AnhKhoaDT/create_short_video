@@ -83,6 +83,14 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
+
+		<!-- Google Gemini API -->
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-aiplatform</artifactId>
+			<version>3.38.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -134,4 +142,15 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<repositories>
+		<repository>
+			<id>google-cloud-sdk</id>
+			<url>https://maven.google.com</url>
+		</repository>
+		<repository>
+			<id>google-ai-sdk</id>
+			<url>https://packages.cloud.google.com/maven/public</url>
+		</repository>
+	</repositories>
 </project>

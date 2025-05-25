@@ -11,56 +11,82 @@
     <link rel="stylesheet" href="./css/app.css">
 </head>
 <body class="font-sans">
-    <div class="main-container  ">
-
+    <div class="main-container">
         <div id="header-placeholder"></div>
 
-       <!-- Main Content (Phần thân) -->
-        <main class="pt-20 flex mt-16" style="padding-top: 1rem;">
-            <div class="w-2/3 p-4">
-                <h2 class="text-xl font-bold mb-4">Các chủ đề xu hướng hiện nay</h2>
-                <ul class="space-y-2">
-                    <li class="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
-                        <span>Chủ đề 1 (dữ liệu từ API)</span>
-                        <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Use</button>
-                    </li>
-                    <li class="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
-                        <span>Chủ đề 2 (dữ liệu từ API)</span>
-                        <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Use</button>
-                    </li>
-                    <li class="flex items-center justify-between bg-gray-100 p-2 rounded-lg">
-                        <span>Chủ đề 3 (dữ liệu từ API)</span>
-                        <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Use</button>
-                    </li>
-        
-                </ul>
-            </div>
-          
-        </main>
+        <!-- Main Content -->
+        <main class="pt-20">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="container mx-auto px-4 py-12">
+                    <div class="text-center mb-12">
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Tạo Video Ngắn với AI</h1>
+                        <p class="text-xl text-gray-600">Biến ý tưởng của bạn thành video hấp dẫn chỉ trong vài phút</p>
+                    </div>
+                    <div class="flex justify-center space-x-4">
+                        <button class="create-video-btn">
+                            <iconify-icon icon="mdi:video-plus" class="mr-2"></iconify-icon>
+                            Tạo Video Mới
+                        </button>
+                        <button class="browse-templates-btn">
+                            <iconify-icon icon="mdi:format-list-bulleted" class="mr-2"></iconify-icon>
+                            Xem Mẫu
+                        </button>
+                    </div>
+                </div>
+            </section>
 
-        <!-- Footer (Phần cuối) -->
-      <!-- Footer (Phần cuối) -->
-        <footer class="mt-4 p-4 bg-gray-200">
-            <div class="border-2 border-gray-300 p-4 rounded-lg">
-                <h3 class="text-lg font-semibold mb-2">Input script</h3>
-                <div class="flex space-x-2 mb-2 action-buttons">
-                    <span class="create-script bg-white text-black px-2 py-1 rounded cursor-pointer">Create Script</span>
-                    <span class="create-video bg-white text-black px-2 py-1 rounded cursor-pointer">Create Video</span>
+            <!-- Trending Topics Section -->
+            <section class="trending-section">
+                <div class="container mx-auto px-4 py-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Chủ đề xu hướng</h2>
+                    <div id="trendingTopics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Loading spinner -->
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex items-center space-x-2 mt-2">
-                    <input type="text" id="inputScript" placeholder="Nhập nội dung..." class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <span id="charCount" class="text-sm text-gray-600 ml-2">0/3000</span>
-                    <button class="send-button">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path>
-                        </svg>
-                    </button>
+            </section>
+
+            <!-- Script Input Section -->
+            <section class="script-section">
+                <div class="container mx-auto px-4 py-8">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold text-gray-800">Tạo kịch bản</h3>
+                            <div class="flex space-x-2">
+                                <button class="action-btn create-script">
+                                    <iconify-icon icon="mdi:file-document-edit" class="mr-2"></iconify-icon>
+                                    Tạo kịch bản
+                                </button>
+                                <button class="action-btn create-video">
+                                    <iconify-icon icon="mdi:video-plus" class="mr-2"></iconify-icon>
+                                    Tạo video
+                                </button>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <textarea 
+                                id="inputScript" 
+                                class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                placeholder="Nhập nội dung kịch bản của bạn..."
+                                rows="4"
+                            ></textarea>
+                            <div class="absolute bottom-4 right-4 flex items-center space-x-2">
+                                <span id="charCount" class="text-sm text-gray-500">0/3000</span>
+                                <button class="send-button">
+                                    <iconify-icon icon="mdi:send" class="text-blue-500 text-xl"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </footer>
+            </section>
+        </main>
     </div>
+
     <script src="./javascript/header.js"></script>
-   <script src="./javascript/hompage.js"></script>
- 
+    <script src="./javascript/homepage.js"></script>
 </body>
 </html>

@@ -54,7 +54,7 @@ public class UserService {
 
         return userRepository.save(user);
     }
-    @PreAuthorize("hasRole('ADMIN')")// kiểm tra trước khi vào method
+    @PreAuthorize("hasRole('USER')")// kiểm tra trước khi vào method
     public List<User> getUser(){
         return userRepository.findAll();
     }
@@ -64,9 +64,6 @@ public class UserService {
     public UserResponse getUserById(String id) {
         UserResponse userResponse = userMapper.toUserResponse(userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found")));
-
-        log.info("returnObject.username: {}", userResponse.getUsername());
-        log.info("authentication.name: {}", SecurityContextHolder.getContext().getAuthentication().getName());
 
         return userResponse;
     }

@@ -10,11 +10,18 @@
                         height="30"
                     ></iconify-icon>
                 </button>
-                <button class="nav-button text-white hover:text-gray-300" style="left:15px">Video</button>
-                <button class="nav-button text-white hover:text-gray-300"style="left:30px">Kịch bản</button>
-                <button class="nav-button text-white hover:text-gray-300"style="left:50px">Hình ảnh</button>
+                <button class="nav-button text-white hover:text-gray-300" style="left:15px" id="videoNavBtn">Video</button>
+                <button class="nav-button text-white hover:text-gray-300"style="left:30px" id="scriptNavBtn">Kịch bản</button>
+                <button class="nav-button text-white hover:text-gray-300"style="left:50px" id="imageNavBtn">Hình ảnh</button>
             </div>
-            <div id="userInitial" class="user-initial" style="margin-right: 15px;">U</div>
+          
+    <!-- Icon người + chữ đăng nhập -->
+            <div class="flex items-center space-x-2">
+                <div id="userInitial" class="user-initial text-white bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center"></div>
+                <span id="loginText" class="text-sm text-blue-400 hover:underline cursor-pointer">Đăng nhập</span>
+            </div>
+        </div>
+
         </header>
         <!-- Sidebar Menu -->
         <div id="sidebar" class="sidebar">
@@ -27,28 +34,50 @@
 
             <div class="separator"></div> <!-- Đường gạch ngang -->
             <div class="sidebar-item">
-                <iconify-icon icon="mdi:home" width="20" height="20"></iconify-icon>
-                <span>Trang Chủ</span>
+                <a href="./homepage.html">
+                    <iconify-icon icon="mdi:home" width="20" height="20"></iconify-icon>
+                    <span>Trang Chủ</span>
+                </a>
             </div>
             <div class="sidebar-item">
-                <iconify-icon icon="mdi:video" width="20" height="20"></iconify-icon>
-                <span>Video</span>
+                <a href="./video-manager.html">
+                    <iconify-icon icon="mdi:video" width="20" height="20"></iconify-icon>
+                    <span>Video</span>
+                </a>
             </div>
+            <!-- New Script Items -->
+            <div class="sidebar-item">
+                <a href="./script-manager.html">
+                    <iconify-icon icon="mdi:script-text-outline" width="20" height="20"></iconify-icon>
+                    <span>Kịch bản</span>
+                </a>
+            </div>
+             <div class="sidebar-item">
+                <a href="./script-create.html">
+                    <iconify-icon icon="mdi:file-document-edit-outline" width="20" height="20"></iconify-icon>
+                    <span>Tạo Kịch bản</span>
+                </a>
+            </div>
+            <!-- End New Script Items -->
             <div class="sidebar-item">
                 <iconify-icon icon="mdi:volume-high" width="20" height="20"></iconify-icon>
                 <span>Giọng đọc</span>
             </div>
             <div class="sidebar-item">
-                <iconify-icon icon="mdi:image" width="20" height="20"></iconify-icon>
-                <span>Hình ảnh</span>
+                 <a href="./image-manager.html">
+                    <iconify-icon icon="mdi:image" width="20" height="20"></iconify-icon>
+                    <span>Hình ảnh</span>
+                </a>
             </div>
             <div class="sidebar-item">
                 <iconify-icon icon="mdi:microphone" width="20" height="20"></iconify-icon>
                 <span>Tạo Giọng đọc</span>
             </div>
             <div class="sidebar-item">
-                <iconify-icon icon="mdi:camera" width="20" height="20"></iconify-icon>
-                <span>Tạo Hình Ảnh</span>
+                <a href="./image-create-from-script.html">
+                    <iconify-icon icon="mdi:camera" width="20" height="20"></iconify-icon>
+                    <span>Tạo Hình Ảnh</span>
+                </a>
             </div>
          
             <div class="separator"></div> <!-- Đường gạch ngang -->

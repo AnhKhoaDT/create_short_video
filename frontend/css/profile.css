@@ -1,0 +1,199 @@
+/* Tối ưu cho màn hình điện thoại */
+@media (max-width: 640px) {
+    /* Loại bỏ căn giữa và điều chỉnh main */
+    main {
+        padding-top: 4rem; /* Giảm padding-top */
+        margin-top: 0;
+        display: block; /* Bỏ flex để không căn giữa */
+        width: 100%; /* Full-width */
+    }
+
+    /* Khung hồ sơ full-width */
+    main > div {
+        width: 100% !important; /* Ghi đè w-1/2 của Tailwind */
+        padding: 1rem; /* Padding hợp lý */
+        margin: 0; /* Loại bỏ margin để full-width */
+    }
+
+    /* Tiêu đề */
+    h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        text-align: left; /* Căn trái thay vì căn giữa */
+    }
+
+    /* Các trường input */
+    .space-y-4 > div {
+        margin-bottom: 1rem;
+    }
+
+    label {
+        font-size: 0.875rem;
+    }
+
+    input {
+        font-size: 0.875rem;
+        padding: 0.5rem;
+        width: 100%; /* Đảm bảo input full-width */
+        box-sizing: border-box; /* Đảm bảo padding không làm tràn */
+    }
+
+    /* Nút hành động */
+    .flex.space-x-2 {
+        flex-direction: column; /* Xếp dọc */
+        gap: 0.5rem;
+        width: 100%; /* Full-width */
+    }
+
+    button {
+        width: 100%; /* Nút full-width */
+        padding: 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    /* Tối ưu sidebar */
+    #sidebar {
+        width: 80%;
+        max-width: 250px;
+    }
+
+    .sidebar-item, .history-item {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    /* Tối ưu header */
+    header {
+        padding: 0.5rem 1rem;
+    }
+
+    .nav-button {
+        font-size: 0.75rem;
+        padding: 0.25rem;
+    }
+
+    #userInitial {
+        width: 32px;
+        height: 32px;
+        font-size: 0.875rem;
+        margin-right: 0.5rem;
+    }
+}
+
+/* Profile Page Styles */
+.form-group {
+    position: relative;
+}
+
+.form-group input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Avatar Animation */
+.w-24.h-24 {
+    transition: transform 0.3s ease;
+}
+
+.w-24.h-24:hover {
+    transform: scale(1.05);
+}
+
+/* Button Hover Effects */
+button {
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+}
+
+/* Modal Animation */
+#passwordModal {
+    transition: opacity 0.3s ease;
+}
+
+#passwordModal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#passwordModal:not(.hidden) {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Input Focus Effects */
+input:focus {
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .w-1/2 {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .flex.space-x-4 {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    #passwordModal .max-w-md {
+        margin: 1rem;
+        width: calc(100% - 2rem);
+    }
+}
+
+/* Loading State */
+.loading {
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Success/Error Messages */
+.alert {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    animation: slideIn 0.3s ease;
+}
+
+.alert-success {
+    background-color: #10B981;
+    color: white;
+}
+
+.alert-error {
+    background-color: #EF4444;
+    color: white;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

@@ -1,0 +1,126 @@
+/* Image Create from Script Styles */
+
+.image-create-section {
+    padding: 20px;
+    max-width: 800px; /* Adjust as needed */
+    margin: 20px auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.create-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.create-header {
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+}
+
+.create-header h2 {
+    font-size: 1.8rem;
+    color: #333;
+}
+
+.create-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+}
+
+.form-group textarea {
+     /* Tailwind classes are already applied in HTML, add custom styles if needed */
+     padding: 10px;
+     border: 1px solid #ccc;
+     font-size: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: center;
+    padding-top: 10px;
+}
+
+.generate-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 20px;
+    background-color: #28a745; /* Green */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.2s ease;
+}
+
+.generate-button:hover {
+    background-color: #218838;
+}
+
+.generate-button iconify-icon {
+    margin-right: 8px;
+}
+
+.generated-image-preview {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.generated-image-preview h3 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.preview-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center items horizontally */
+    gap: 15px; /* Space between generated images */
+}
+
+.preview-area img {
+    max-width: 100%; /* Ensure image fits within the container */
+    height: auto; /* Maintain aspect ratio */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .image-create-section {
+        padding: 15px;
+        margin: 15px;
+    }
+
+     .create-header h2 {
+         font-size: 1.5rem;
+     }
+
+     .form-group textarea {
+        font-size: 0.95rem;
+     }
+
+     .generate-button {
+         width: 100%; /* Full width button */
+         justify-content: center; /* Center text and icon */
+         padding: 10px;
+         font-size: 1rem;
+     }
+
+      .generated-image-preview h3 {
+         font-size: 1.3rem;
+      }
+} 
