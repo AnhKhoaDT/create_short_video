@@ -38,12 +38,16 @@ public class TrendService {
         this.objectMapper = new ObjectMapper();
     }
 
-    public TrendResponse getGeminiSuggestions(String keyword, String industry) {
+    public TrendResponse getGeminiSuggestions() {
         try {
+            String keyword = "tất cả";
+            String industry = "đa ngành";
+
             String prompt = String.format(
                     "Là một chuyên gia về xu hướng tại Việt Nam, hãy đề xuất 10 chủ đề hấp dẫn về '%s' " +
                             "trong ngành '%s' đang thịnh hành năm 2025. Ưu tiên chủ đề viral trên TikTok/Facebook. " +
-                            "Mỗi chủ đề ngắn gọn (3-7 từ). Định dạng: mỗi dòng bắt đầu bằng '-'. Không giải thích thêm.",
+                            "Mỗi chủ đề ngắn gọn (3-7 từ) và kèm theo một câu giải thích ngắn (dưới 15 từ). " +
+                            "Định dạng: mỗi dòng bắt đầu bằng '-' theo sau là Chủ đề: Giải thích. Không giải thích thêm.",
                     keyword, industry
             );
 
@@ -74,12 +78,16 @@ public class TrendService {
                     .path("text")
                     .asText();
 
-            List<String> suggestions = parseAPIResponse(responseText);
-            List<Trend> savedTrends = saveTrendsToDatabase(suggestions, keyword, industry);
+            List<Map<String, String>> suggestionsWithDescriptions = parseAPIResponse(responseText);
+            // trendRepository.deleteAll(); // Keep or remove based on your requirements
+            List<Trend> savedTrends = saveTrendsToDatabase(suggestionsWithDescriptions, keyword, industry);
 
             String responseMessage = String.format("Successfully generated %d suggestions for %s in %s",
-                    suggestions.size(), keyword, industry);
-            return new TrendResponse("success", responseMessage, savedTrends, suggestions);
+                    suggestionsWithDescriptions.size(), keyword, industry);
+            // In TrendResponse, the list field likely expects List<Trend>, not List<Map<String, String>>
+            // You might need to adjust TrendResponse or how you set the list here.
+            // Assuming TrendResponse can hold List<Trend>
+            return new TrendResponse("success", responseMessage, savedTrends, null); // suggestions list might be null or adjusted
 
         } catch (Exception e) {
             log.error("Gemini API error: {}", e.getMessage());
@@ -87,23 +95,45 @@ public class TrendService {
         }
     }
 
-    private List<String> parseAPIResponse(String response) {
+    // Modified to parse both topic and description
+    private List<Map<String, String>> parseAPIResponse(String response) {
+        List<Map<String, String>> results = new ArrayList<>();
         if (response == null || response.isEmpty()) {
-            return new ArrayList<>();
+            return results;
         }
-        return Arrays.stream(response.split("\n"))
-                .filter(line -> line.trim().startsWith("-"))
-                .map(line -> line.replaceFirst("^-\\s*", "").trim())
-                .filter(line -> !line.isEmpty())
-                .collect(Collectors.toList());
+        String[] lines = response.split("\n");
+        for (String line : lines) {
+            String trimmedLine = line.trim();
+            if (trimmedLine.startsWith("-")) {
+                String content = trimmedLine.replaceFirst("^-\s*", "");
+                int colonIndex = content.indexOf(":");
+                if (colonIndex != -1) {
+                    String topic = content.substring(0, colonIndex).trim();
+                    String description = content.substring(colonIndex + 1).trim();
+                    if (!topic.isEmpty() && !description.isEmpty()) {
+                        Map<String, String> item = new HashMap<>();
+                        item.put("topic", topic);
+                        item.put("description", description);
+                        results.add(item);
+                    }
+                } else if (!content.isEmpty()) { // Handle cases where no colon is present, use content as topic
+                     Map<String, String> item = new HashMap<>();
+                     item.put("topic", content);
+                     item.put("description", ""); // No description available
+                     results.add(item);
+                }
+            }
+        }
+        return results;
     }
 
-    private List<Trend> saveTrendsToDatabase(List<String> suggestions, String keyword, String industry) {
-        List<Trend> trends = suggestions.stream()
-                .map(suggestion -> Trend.builder()
-                        .keyword(suggestion)
+    // Modified to save description (into status field for now)
+    private List<Trend> saveTrendsToDatabase(List<Map<String, String>> suggestionsWithDescriptions, String keyword, String industry) {
+        List<Trend> trends = suggestionsWithDescriptions.stream()
+                .map(item -> Trend.builder()
+                        .keyword(item.get("topic"))
                         .industry(industry)
-                        .status("active")
+                        .description(item.get("description")) // Saving description into the status field
                         .created_at(LocalDate.now())
                         .updated_at(LocalDate.now())
                         .build())
@@ -113,20 +143,12 @@ public class TrendService {
     }
 
     public List<Trend> getTrendsByIndustry(String industry) {
+        // This method might need adjustment if you now rely on description instead of industry for filtering
         return trendRepository.findByIndustry(industry);
     }
 
-    public List<Trend> getTrendsByStatus(String status) {
-        return trendRepository.findByStatus(status);
-    }
+   
 
-    public Trend updateTrendStatus(String id, String status) {
-        Trend trend = trendRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Trend not found with id: " + id));
-        trend.setStatus(status);
-        trend.setUpdated_at(LocalDate.now());
-        return trendRepository.save(trend);
-    }
 
     public void deleteTrend(String id) {
         trendRepository.deleteById(id);

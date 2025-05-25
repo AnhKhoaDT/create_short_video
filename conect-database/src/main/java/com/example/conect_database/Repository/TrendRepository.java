@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface TrendRepository extends JpaRepository<Trend, String> {
     List<Trend> findByIndustry(String industry);
-    List<Trend> findByStatus(String status);
+
 }

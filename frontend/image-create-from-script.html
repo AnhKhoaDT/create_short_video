@@ -1,52 +1,109 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tạo Hình ảnh từ Script - AI Short Video Creator</title>
+    <title>CreatorVideo - Chọn Ảnh Nền</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="./css/header.css">
     <link rel="stylesheet" href="./css/image-create-from-script.css">
     <link rel="stylesheet" href="./css/app.css">
     <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
 </head>
-<body class="font-sans">
+<body class="font-sans bg-gray-100">
     <div class="main-container">
         <div id="header-placeholder"></div>
 
         <!-- Main Content -->
-        <main>
-            <section class="image-create-section" style="margin-top: 100px;">
-                <div class="create-container">
-                    <div class="create-header">
-                        <h2>Tạo Hình ảnh từ Script</h2>
-                    </div>
+        <main class="pt-20">
+            <section class="container mx-auto px-4 py-8">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Chọn Ảnh Nền cho Video</h2>
 
-                    <div class="create-form">
-                        <div class="form-group">
-                            <label for="scriptInput" class="block text-sm font-medium text-gray-700">Nhập Script/Mô tả:</label>
-                            <textarea id="scriptInput" rows="8" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Nhập script hoặc mô tả chi tiết để tạo hình ảnh..."></textarea>
-                        </div>
-
-                        <!-- Add more form groups for options (e.g., style, aspect ratio) if needed later -->
-
-                        <div class="form-actions">
-                            <button id="generateImageBtn" class="generate-button">
-                                <iconify-icon icon="mdi:image-plus"></iconify-icon>
-                                Tạo Hình ảnh
-                            </button>
+                    <!-- Script Display (Optional - could also just use script from storage) -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Kịch bản:</h3>
+                        <div id="scriptPreview" class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 italic max-h-40 overflow-y-auto">
+                            <!-- Script content will be loaded here by JS -->
+                            Đang tải kịch bản...
                         </div>
                     </div>
 
-                    <div class="generated-image-preview">
-                        <h3>Kết quả:</h3>
-                        <div id="imagePreviewArea" class="preview-area">
-                             <!-- Generated images will be displayed here -->
-                            <p class="text-gray-500">Hình ảnh tạo ra sẽ xuất hiện ở đây.</p>
+                    <!-- Sample Images Section -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Hình ảnh mẫu:</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div class="relative group">
+                                <img src="https://images.unsplash.com/photo-1682687220063-4742bd7fd538" alt="Mẫu 1" class="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity">
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                                    <button class="btn-secondary opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <iconify-icon icon="mdi:check" class="mr-1"></iconify-icon>
+                                        Chọn
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="relative group">
+                                <img src="https://images.unsplash.com/photo-1682687220067-dced0a2c8e92" alt="Mẫu 2" class="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity">
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                                    <button class="btn-secondary opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <iconify-icon icon="mdi:check" class="mr-1"></iconify-icon>
+                                        Chọn
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="relative group">
+                                <img src="https://images.unsplash.com/photo-1682687220063-4742bd7fd538" alt="Mẫu 3" class="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity">
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                                    <button class="btn-secondary opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <iconify-icon icon="mdi:check" class="mr-1"></iconify-icon>
+                                        Chọn
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="relative group">
+                                <img src="https://images.unsplash.com/photo-1682687220067-dced0a2c8e92" alt="Mẫu 4" class="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity">
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                                    <button class="btn-secondary opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <iconify-icon icon="mdi:check" class="mr-1"></iconify-icon>
+                                        Chọn
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+
+                    <!-- Background Image Selection/Generation Section -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Chọn hoặc Tạo Ảnh Nền:</h3>
+                        <button id="generateImagesBtn" class="btn-secondary mb-4">
+                             <iconify-icon icon="mdi:image-auto-adjust" class="mr-1"></iconify-icon>
+                            Tạo Ảnh Nền Từ Kịch bản
+                        </button>
+                        <div id="imageGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <!-- Generated or available images will be loaded here by JS -->
+                             <!-- Loading spinner -->
+                            <div class="loading-spinner col-span-full">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-end">
+                         <button id="generateVideoBtn" class="btn-primary">
+                             <iconify-icon icon="mdi:video-plus" class="mr-1"></iconify-icon>
+                             Tạo Video
+                        </button>
                     </div>
                 </div>
             </section>
+             <!-- Loading overlay -->
+            <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-lg p-4 flex items-center space-x-3">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    <span class="text-gray-800">Đang xử lý...</span>
+                </div>
+            </div>
         </main>
     </div>
 

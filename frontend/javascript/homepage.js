@@ -66,7 +66,7 @@ async function loadTrendingTopics() {
     const token = localStorage.getItem('token');
 
     try {
-        const response = await fetch('/create-video-service/api/trends', {
+        const response = await fetch('http://localhost:8080/create-video-service/trends/suggestions', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -76,23 +76,37 @@ async function loadTrendingTopics() {
             throw new Error('Failed to fetch trending topics');
         }
 
-        const trends = await response.json();
+        const responseData = await response.json();
+        const trends = responseData.data; // Access the 'data' field
         
         // Xóa loading spinner
         trendingContainer.innerHTML = '';
 
         // Thêm các trend vào container
-        trends.forEach(trend => {
+        if (trends && trends.length > 0) {
+             trends.forEach(trend => {
+                // Pass keyword as title and description as description
+                const trendCard = createTrendCard({ 
+                    id: trend.id,
+                    title: trend.keyword, // Use keyword as title
+                    description: trend.description // Use description
+                });
+                trendingContainer.appendChild(trendCard);
+            });
+        } else {
+            // Hiển thị thông báo không có dữ liệu hoặc xu hướng mẫu nếu cần
+            trendingContainer.innerHTML = '<p>Không tìm thấy xu hướng nào.</p>';
+        }
+       
+    } catch (error) {
+        console.error('Error loading trending topics:', error);
+        
+
+        trendingContainer.innerHTML = '';
+        exampleTrends.forEach(trend => {
             const trendCard = createTrendCard(trend);
             trendingContainer.appendChild(trendCard);
         });
-    } catch (error) {
-        console.error('Error loading trending topics:', error);
-        trendingContainer.innerHTML = `
-            <div class="col-span-full text-center text-red-500">
-                Không thể tải chủ đề xu hướng. Vui lòng thử lại sau.
-            </div>
-        `;
     }
 }
 

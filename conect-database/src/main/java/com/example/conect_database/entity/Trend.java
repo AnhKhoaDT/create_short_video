@@ -23,7 +23,7 @@ public class Trend {
     String id;
     String keyword;
     String industry;
-    String status;
+    String description;
     LocalDate created_at;
     LocalDate updated_at;
 }

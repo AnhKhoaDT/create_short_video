@@ -15,10 +15,9 @@ public class TrendController {
     private TrendService trendService;
 
     @GetMapping("/suggestions")
-    public TrendResponse getSuggestions(
-            @RequestParam String keyword,
-            @RequestParam String industry) {
-        return trendService.getGeminiSuggestions(keyword, industry);
+    public TrendResponse getSuggestions() {
+           
+        return trendService.getGeminiSuggestions();
     }
 
     @GetMapping("/industry/{industry}")
@@ -26,17 +25,7 @@ public class TrendController {
         return trendService.getTrendsByIndustry(industry);
     }
 
-    @GetMapping("/status/{status}")
-    public List<Trend> getTrendsByStatus(@PathVariable String status) {
-        return trendService.getTrendsByStatus(status);
-    }
-
-    @PutMapping("/{id}/status")
-    public Trend updateTrendStatus(
-            @PathVariable String id,
-            @RequestParam String status) {
-        return trendService.updateTrendStatus(id, status);
-    }
+  
 
     @DeleteMapping("/{id}")
     public void deleteTrend(@PathVariable String id) {

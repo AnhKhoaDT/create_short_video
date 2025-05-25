@@ -1,214 +1,230 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Check authentication
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = 'login.html';
-        return;
+    // Function to parse JWT token
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+
+            return JSON.parse(jsonPayload);
+        } catch (error) {
+            console.error('Error parsing JWT token:', error);
+            return null;
+        }
     }
 
-    // Load user profile
-    loadUserProfile();
+    // Function to format date from ISO string
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    }
 
-    // Setup event listeners
-    document.getElementById('editBtn').addEventListener('click', toggleEditMode);
-    document.getElementById('changePasswordBtn').addEventListener('click', openPasswordModal);
-    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-    document.getElementById('changePasswordForm').addEventListener('submit', handlePasswordChange);
-});
-
-async function loadUserProfile() {
-    try {
-        const response = await fetch('/create-video-service/api/users/profile', {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to load profile');
+    // Function to load user profile from token
+    function loadUserProfile() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login.html';
+            return;
         }
 
-        const user = await response.json();
-        
-        // Update form fields
-        document.getElementById('username').value = user.username;
-        document.getElementById('email').value = user.email;
-        document.getElementById('phone').value = user.phone || '';
-        document.getElementById('dob').value = user.dateOfBirth || '';
+        const userData = parseJwt(token);
+        if (!userData) {
+            console.error('Invalid token');
+            return;
+        }
+
+        // Update form fields with data from token
+        document.getElementById('username').value = userData.sub || ''; // sub is the username in JWT
+        document.getElementById('email').value = userData.email || '';
+        document.getElementById('phone').value = userData.phone || '';
+        document.getElementById('dob').value = formatDate(userData.dateOfBirth) || '';
         
         // Update avatar initial
-        document.getElementById('userInitial').textContent = user.username.charAt(0).toUpperCase();
-    } catch (error) {
-        console.error('Error loading profile:', error);
-        showError('Failed to load profile. Please try again later.');
-    }
-}
+        const initial = userData.sub ? userData.sub.charAt(0).toUpperCase() : 'U';
+        document.getElementById('userInitial').textContent = initial;
 
-function toggleEditMode() {
-    const inputs = document.querySelectorAll('.form-input');
-    const editBtn = document.getElementById('editBtn');
-    
-    if (editBtn.textContent === 'Edit Profile') {
-        // Enable editing
-        inputs.forEach(input => input.removeAttribute('readonly'));
-        editBtn.textContent = 'Save Changes';
-        editBtn.classList.remove('btn-primary');
-        editBtn.classList.add('btn-secondary');
-    } else {
-        // Save changes
-        saveProfileChanges();
-    }
-}
-
-async function saveProfileChanges() {
-    const formData = {
-        username: document.getElementById('username').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        dateOfBirth: document.getElementById('dob').value
-    };
-
-    try {
-        const response = await fetch('/create-video-service/api/users/profile', {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to update profile');
+        // Update role/scope if needed
+        if (userData.scope) {
+            const roleElement = document.getElementById('userRole');
+            if (roleElement) {
+                roleElement.textContent = userData.scope;
+            }
         }
 
-        // Disable editing
-        const inputs = document.querySelectorAll('.form-input');
-        inputs.forEach(input => input.setAttribute('readonly', true));
+        // Log token expiration time
+        if (userData.exp) {
+            const expirationDate = new Date(userData.exp * 1000);
+            console.log('Token expires at:', expirationDate.toLocaleString());
+        }
+    }
+
+    // Function to handle edit mode
+    function toggleEditMode() {
+        const inputs = document.querySelectorAll('input[readonly]');
+        const saveEditBtn = document.getElementById('saveEditBtn');
         
-        const editBtn = document.getElementById('editBtn');
-        editBtn.textContent = 'Edit Profile';
-        editBtn.classList.remove('btn-secondary');
-        editBtn.classList.add('btn-primary');
-
-        showSuccess('Profile updated successfully');
-    } catch (error) {
-        console.error('Error updating profile:', error);
-        showError('Failed to update profile. Please try again.');
-    }
-}
-
-function openPasswordModal() {
-    document.getElementById('passwordModal').style.display = 'block';
-}
-
-function closePasswordModal() {
-    document.getElementById('passwordModal').style.display = 'none';
-    document.getElementById('changePasswordForm').reset();
-}
-
-async function handlePasswordChange(e) {
-    e.preventDefault();
-
-    const currentPassword = document.getElementById('currentPassword').value;
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-
-    if (newPassword !== confirmPassword) {
-        showError('New passwords do not match');
-        return;
-    }
-
-    try {
-        const response = await fetch('/create-video-service/api/users/change-password', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                currentPassword,
-                newPassword
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to change password');
-        }
-
-        closePasswordModal();
-        showSuccess('Password changed successfully');
-    } catch (error) {
-        console.error('Error changing password:', error);
-        showError('Failed to change password. Please try again.');
-    }
-}
-
-function handleLogout(e) {
-    e.preventDefault();
-    localStorage.removeItem('token');
-    window.location.href = 'login.html';
-}
-
-function showError(message) {
-    const alert = document.createElement('div');
-    alert.className = 'alert alert-error';
-    alert.textContent = message;
-    document.querySelector('.profile-card').insertBefore(alert, document.querySelector('.profile-form'));
-    setTimeout(() => alert.remove(), 3000);
-}
-
-function showSuccess(message) {
-    const alert = document.createElement('div');
-    alert.className = 'alert alert-success';
-    alert.textContent = message;
-    document.querySelector('.profile-card').insertBefore(alert, document.querySelector('.profile-form'));
-    setTimeout(() => alert.remove(), 3000);
-}
-
-// xử lý logout
-// Lấy token từ localStorage
-const token = localStorage.getItem('token');
-
-// Hàm gọi API logout
-async function logout() {
-    if (!token) {
-        console.warn('Không tìm thấy token để đăng xuất');
-        window.location.href = 'login.html';
-        return;
-    }
-
-    try {
-        const response = await fetch('http://localhost:8080/create-video-service/auth/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ token: token }),
-        });
-
-        if (response.ok) {
-            console.log('Đăng xuất thành công');
-            // Xóa token khỏi localStorage
-            localStorage.removeItem('token');
-            // Chuyển hướng về trang login
-            window.location.href = 'login.html';
+        if (inputs[0].readOnly) {
+            // Enable editing
+            inputs.forEach(input => input.readOnly = false);
+            saveEditBtn.innerHTML = `
+                <iconify-icon icon="mdi:content-save" class="mr-2"></iconify-icon>
+                Lưu thay đổi
+            `;
         } else {
-            const errorText = await response.text();
-            console.error('Đăng xuất thất bại:', errorText);
-            alert('Đăng xuất thất bại. Vui lòng thử lại.');
+            // Save changes
+            saveChanges();
         }
-    } catch (error) {
-        console.error('Lỗi khi gọi API logout:', error);
-        alert('Đăng xuất thất bại do lỗi kết nối. Vui lòng thử lại.');
     }
-}
 
-// Thêm sự kiện cho nút Đăng xuất
-document.addEventListener('DOMContentLoaded', () => {
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', logout);
+    // Function to save changes
+    async function saveChanges() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const userData = {
+            username: document.getElementById('username').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            dateOfBirth: document.getElementById('dob').value
+        };
+
+        try {
+            const response = await fetch('/api/users/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update profile');
+            }
+
+            // Update token with new data
+            const newToken = await response.json();
+            localStorage.setItem('token', newToken);
+
+            // Disable editing
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => input.readOnly = true);
+            
+            const saveEditBtn = document.getElementById('saveEditBtn');
+            saveEditBtn.innerHTML = `
+                <iconify-icon icon="mdi:pencil" class="mr-2"></iconify-icon>
+                Chỉnh sửa
+            `;
+
+            alert('Cập nhật thông tin thành công!');
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            alert('Có lỗi xảy ra khi cập nhật thông tin. Vui lòng thử lại.');
+        }
     }
+
+    // Function to handle password change
+    async function handlePasswordChange(event) {
+        event.preventDefault();
+        
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (newPassword !== confirmPassword) {
+            alert('Mật khẩu mới không khớp!');
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        try {
+            const response = await fetch('/api/users/change-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    currentPassword,
+                    newPassword
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to change password');
+            }
+
+            alert('Đổi mật khẩu thành công!');
+            closePasswordModal();
+        } catch (error) {
+            console.error('Error changing password:', error);
+            alert('Có lỗi xảy ra khi đổi mật khẩu. Vui lòng thử lại.');
+        }
+    }
+
+    // Function to show password modal
+    function showPasswordModal() {
+        document.getElementById('passwordModal').classList.remove('hidden');
+        document.getElementById('passwordModal').classList.add('flex');
+    }
+
+    // Function to close password modal
+    function closePasswordModal() {
+        document.getElementById('passwordModal').classList.add('hidden');
+        document.getElementById('passwordModal').classList.remove('flex');
+        document.getElementById('changePasswordForm').reset();
+    }
+
+    // xử lý logout
+    // Lấy token từ localStorage
+    const token = localStorage.getItem('token');
+
+    // Hàm gọi API logout
+    async function logout() {
+        if (!token) {
+            console.warn('Không tìm thấy token để đăng xuất');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/create-video-service/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token: token }),
+            });
+
+            if (response.ok) {
+                console.log('Đăng xuất thành công');
+                // Xóa token khỏi localStorage
+                localStorage.removeItem('token');
+                // Chuyển hướng về trang login
+                window.location.href = 'login.html';
+            } else {
+                const errorText = await response.text();
+                console.error('Đăng xuất thất bại:', errorText);
+                alert('Đăng xuất thất bại. Vui lòng thử lại.');
+            }
+        } catch (error) {
+            console.error('Lỗi khi gọi API logout:', error);
+            alert('Đăng xuất thất bại do lỗi kết nối. Vui lòng thử lại.');
+        }
+    }
+
+    // Add event listeners
+    document.getElementById('saveEditBtn').addEventListener('click', toggleEditMode);
+    document.getElementById('changePasswordBtn').addEventListener('click', showPasswordModal);
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('changePasswordForm').addEventListener('submit', handlePasswordChange);
+
+    // Load profile on page load
+    loadUserProfile();
 });
 

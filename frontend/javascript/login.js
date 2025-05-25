@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
                console.log("Token:", localStorage.getItem('token'));
                 // Chuyển hướng đến trang dashboard hoặc trang chính
                 await new Promise(resolve => setTimeout(resolve, 100));
+                
                 window.location.href = 'homepage.html'; // Thay bằng URL thực tế
                 console.log("Token:", localStorage.getItem('token'));
             } else {

@@ -172,6 +172,9 @@ public class AuthenticateService {
                 ))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
+                .claim("email", user.getEmail())
+                .claim("phone", user.getPhone())
+                .claim("dateOfBirth", user.getDob() != null ? user.getDob().toString() : null)
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());

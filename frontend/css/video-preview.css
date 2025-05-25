@@ -24,11 +24,11 @@
 }
 
 .preview-header {
-    background-color: #007bff;
-    color: white;
+   
     padding: 15px;
     text-align: center;
     font-size: 1.2rem;
+  
 }
 
 .video-player-container {
