@@ -204,19 +204,41 @@
 .video-info {
     padding: 20px;
     border-top: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+}
+
+.video-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .video-info h3 {
-    margin-top: 0;
-    font-size: 1.5rem; /* Larger title */
-    margin-bottom: 10px;
+    margin: 0;
+    font-size: 1.5rem;
     color: #333;
 }
 
+.video-stats-preview {
+    font-size: 1rem;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.video-stats-preview iconify-icon {
+    font-size: 1.2rem;
+    color: #007bff;
+}
+
 .video-info p {
-    font-size: 1rem; /* Normal description size */
+    font-size: 1rem;
     color: #666;
     line-height: 1.5;
+    margin: 0;
 }
 
 .action-buttons-preview {
@@ -323,4 +345,127 @@
         width: 60px; /* Reduce volume slider width */
      }
 
+}
+
+/* Share Section Preview */
+.share-section-preview {
+    padding: 20px;
+    border-top: 1px solid #e0e0e0;
+    background-color: #f9f9f9;
+    margin-top: 20px;
+}
+
+.share-section-preview h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.share-items-preview {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.share-item-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    justify-content: center;
+}
+
+.share-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.share-btn iconify-icon {
+    font-size: 24px;
+    transition: all 0.3s ease;
+}
+
+/* YouTube hover effect */
+.share-btn.youtube:hover {
+    background-color: rgba(255, 0, 0, 0.1);
+}
+
+.share-btn.youtube:hover iconify-icon {
+    color: #FF0000;
+}
+
+/* TikTok hover effect */
+.share-btn.tiktok {
+    /* Remove default black background */
+    /* background-color: black; */
+    border-radius: 50%;
+}
+
+.share-btn.tiktok iconify-icon {
+    color: #000000; /* Set default icon color to black */
+    font-size: 24px; /* Explicitly set size for TikTok icon */
+}
+
+.share-btn.tiktok:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly dark background on hover */
+}
+
+.share-btn.tiktok:hover iconify-icon {
+    color: #000000; /* Icon remains black on hover */
+}
+
+/* Facebook hover effect */
+.share-btn.facebook:hover {
+    background-color: rgba(66, 103, 178, 0.1);
+}
+
+.share-btn.facebook:hover iconify-icon {
+    color: #4267B2;
+}
+
+.share-status-preview {
+    font-size: 1rem;
+    color: #666;
+    font-weight: normal;
+}
+
+/* Shared State Styles for Share Status */
+.share-item-preview.shared .share-status-preview {
+    color: #28a745; /* Green color for 'Shared' */
+    font-weight: bold;
+}
+
+/* Subtitle button style */
+.subtitle-btn {
+    font-size: 1.5rem; /* Match other control button size */
+    margin-left: 10px; /* Add some space from volume control */
+}
+
+/* Highlight subtitle button when active */
+.subtitle-btn.active {
+    color: #007bff; /* Highlight color */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .share-items-preview {
+        flex-direction: column;
+        gap: 10px;
+        max-width: 100%;
+    }
+    
+    .share-item-preview {
+        width: 100%;
+        justify-content: flex-start;
+    }
 }

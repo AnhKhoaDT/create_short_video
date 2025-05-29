@@ -1,16 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Lấy thời lượng video và hiển thị
-    document.querySelectorAll('video').forEach(video => {
-        video.addEventListener('loadedmetadata', () => {
-            const duration = video.duration; // Thời lượng tính bằng giây
-            const minutes = Math.floor(duration / 60);
-            const seconds = Math.floor(duration % 60).toString().padStart(2, '0');
-            const durationSpan = video.parentElement.querySelector('span');
-            if (durationSpan) {
-                durationSpan.textContent = `${minutes}:${seconds}`;
-            }
-        });
-    });
+    // document.querySelectorAll('video').forEach(video => {
+    //     video.addEventListener('loadedmetadata', () => {
+    //         const duration = video.duration; // Thời lượng tính bằng giây
+    //         const minutes = Math.floor(duration / 60);
+    //         const seconds = Math.floor(duration % 60).toString().padStart(2, '0');
+    //         const durationSpan = video.parentElement.querySelector('span');
+    //         if (durationSpan) {
+    //             durationSpan.textContent = `${minutes}:${seconds}`;
+    //         }
+    //     });
+    // });
 
     // Xử lý các nút hành động
     const downloadButtons = document.querySelectorAll('.text-blue-500');
@@ -71,3 +71,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+function loadHomepageVideos() {
+    const videoListContainer = document.getElementById('homepageVideoList');
+    // Dữ liệu mẫu, bạn có thể thay bằng API nếu có
+    const videos = [
+        { title: "Video A", views: 1500, description: "Mô tả video A", url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" },
+        { title: "Video B", views: 900, description: "Mô tả video B", url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" },
+        { title: "Video C", views: 2100, description: "Mô tả video C", url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" }
+    ];
+
+    // const sharedState = JSON.parse(localStorage.getItem('videoSharedState') || '{}'); // Not needed anymore
+
+    videoListContainer.innerHTML = videos.map(video => {
+        // const videoSharedPlatforms = sharedState[video.url] || []; // Not needed anymore
+
+        return `
+        <div class="video-card">
+            <video class="video-thumb" src="${video.url}" controls></video>
+            <div class="video-title">${video.title}</div>
+            <div class="video-desc">${video.description}</div>
+            <div class="video-stats">
+                <span class="view-count"><iconify-icon icon="mdi:eye"></iconify-icon> ${video.views} lượt xem</span>
+            </div>
+            <!-- Action buttons -->
+            <div class="video-actions-compact">
+                <button class="download-btn-compact"><iconify-icon icon="mdi:download"></iconify-icon> Tải xuống</button>
+                <button class="edit-btn-compact"><iconify-icon icon="mdi:pencil"></iconify-icon> Sửa</button>
+                <button class="delete-btn-compact"><iconify-icon icon="mdi:delete"></iconify-icon> Xóa</button>
+            </div>
+        </div>
+    `;
+}).join('');
+}
+
+// Hàm chia sẻ video (giả lập)
+// Removed shareVideo function and related logic

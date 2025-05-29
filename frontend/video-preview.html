@@ -38,6 +38,10 @@
                                 <span id="currentTime" class="time">0:00</span>
                                 <span class="time">/</span>
                                 <span id="duration" class="time">0:00</span>
+                                <!-- Nút phụ đề -->
+                                <button id="subtitleBtn" class="control-btn subtitle-btn" style="display: none;"> <!-- Hide by default if no subtitle track -->
+                                    <iconify-icon icon="mdi:subtitles-outline"></iconify-icon>
+                                </button>
                                 <!-- Điều khiển âm lượng -->
                                 <div class="volume-controls">
                                     <button id="volumeBtn" class="control-btn volume-btn">
@@ -45,6 +49,7 @@
                                     </button>
                                     <input type="range" id="volumeSlider" value="1" min="0" max="1" step="0.01" class="volume-slider">
                                 </div>
+                                  
                                 <!-- Nút Toàn màn hình -->
                                 <button id="fullscreenBtn" class="control-btn fullscreen-btn">
                                     <iconify-icon icon="mdi:fullscreen"></iconify-icon>
@@ -53,9 +58,37 @@
                         </div>
 
                         <div class="video-info">
-                            <h3 id="previewTitle">Tên Video</h3>
+                            <div class="video-info-header">
+                                <h3 id="previewTitle">Tên Video</h3>
+                                <span id="previewViewCount" class="video-stats-preview"><iconify-icon icon="mdi:eye"></iconify-icon> Loading lượt xem</span>
+                            </div>
                             <p id="previewDesc">Mô tả video...</p>
                         </div>
+
+                         <!-- Share Section -->
+                            <div class="share-section-preview">
+                                <h4>Chia sẻ video:</h4>
+                                <div class="share-items-preview">
+                                    <div class="share-item-preview">
+                                        <button class="share-btn youtube" title="Chia sẻ lên YouTube">
+                                            <iconify-icon icon="mdi:youtube"></iconify-icon>
+                                        </button>
+                                        <span class="share-status-preview youtube-status">Chưa chia sẻ</span>
+                                    </div>
+                                    <div class="share-item-preview">
+                                        <button class="share-btn tiktok" title="Chia sẻ lên TikTok">
+                                            <iconify-icon icon="mdi:alpha-t"></iconify-icon>
+                                        </button>
+                                        <span class="share-status-preview tiktok-status">Chưa chia sẻ</span>
+                                    </div>
+                                    <div class="share-item-preview">
+                                        <button class="share-btn facebook" title="Chia sẻ lên Facebook">
+                                            <iconify-icon icon="mdi:facebook"></iconify-icon>
+                                        </button>
+                                        <span class="share-status-preview facebook-status">Chưa chia sẻ</span>
+                                    </div>
+                                </div>
+                            </div>
 
                          <div class="action-buttons-preview">
                             <button id="editBtn" class="edit-btn">

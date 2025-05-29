@@ -5,24 +5,122 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewVideo = document.getElementById('previewVideo');
     const previewTitle = document.getElementById('previewTitle');
     const previewDesc = document.getElementById('previewDesc');
+    const previewViewCount = document.getElementById('previewViewCount');
+    const subtitleBtn = document.getElementById('subtitleBtn');
+
+    // Get share buttons and status elements
+    const youtubeShareBtn = document.querySelector('.share-btn.youtube');
+    const tiktokShareBtn = document.querySelector('.share-btn.tiktok');
+    const facebookShareBtn = document.querySelector('.share-btn.facebook');
+    const youtubeStatusSpan = document.querySelector('.share-status-preview.youtube-status');
+    const tiktokStatusSpan = document.querySelector('.share-status-preview.tiktok-status');
+    const facebookStatusSpan = document.querySelector('.share-status-preview.facebook-status');
+
+    // Hàm cập nhật trạng thái chia sẻ trên giao diện
+    const updateShareStatusUI = (platform, isShared) => {
+        const shareItem = document.querySelector(`.share-item-preview .share-btn.${platform}`).closest('.share-item-preview');
+        const statusSpan = shareItem.querySelector('.share-status-preview');
+        if (isShared) {
+            shareItem.classList.add('shared');
+            statusSpan.textContent = 'Đã chia sẻ';
+        } else {
+            shareItem.classList.remove('shared');
+            statusSpan.textContent = 'Chưa chia sẻ';
+        }
+    };
+
+    // Hàm xử lý chia sẻ
+    const handleShare = (platform, url, buttonElement) => {
+        let shareUrl = '';
+        if (platform === 'youtube') {
+            shareUrl = `https://www.youtube.com/share?url=${encodeURIComponent(url)}`;
+        } else if (platform === 'tiktok') {
+            shareUrl = `https://www.tiktok.com/share/video/${encodeURIComponent(url)}`; // Example
+        } else if (platform === 'facebook') {
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+        }
+
+        window.open(shareUrl, '_blank');
+
+        // Simulate share success and update state after a short delay
+        setTimeout(() => {
+            const sharedState = JSON.parse(localStorage.getItem('videoPreviewSharedState') || '{}');
+
+            if (!sharedState[url]) {
+                sharedState[url] = {};
+            }
+
+            sharedState[url][platform] = true; // Mark as shared for this platform
+
+            localStorage.setItem('videoPreviewSharedState', JSON.stringify(sharedState));
+
+            // Update UI for the specific platform
+            updateShareStatusUI(platform, true);
+
+        }, 1000); // Delay to allow share window to open
+    };
 
     if (videoInfo) {
-        // Set video source, title, and description
+        // Set video source, title, description, and view count
         previewVideo.src = videoInfo.url;
         previewTitle.textContent = videoInfo.title;
         previewDesc.textContent = videoInfo.description;
-        
-        // Optional: Remove info from sessionStorage after use
-        // sessionStorage.removeItem('currentVideo');
+        previewViewCount.innerHTML = `<iconify-icon icon="mdi:eye"></iconify-icon> ${videoInfo.views || 'N/A'} lượt xem`; // Display view count
+
+        // Handle subtitle track if available
+        if (videoInfo.subtitleUrl) {
+            const track = document.createElement('track');
+            track.kind = 'subtitles';
+            track.label = 'Tiếng Việt'; // Or dynamic label
+            track.srclang = 'vi'; // Or dynamic language code
+            track.src = videoInfo.subtitleUrl;
+            track.default = true; // Optional: make it default
+            previewVideo.appendChild(track);
+            subtitleBtn.style.display = 'flex'; // Show subtitle button
+
+            // Add event listener for subtitle button
+            subtitleBtn.addEventListener('click', () => {
+                // Find the subtitle track
+                for (let i = 0; i < previewVideo.textTracks.length; i++) {
+                    const track = previewVideo.textTracks[i];
+                    if (track.kind === 'subtitles') {
+                        if (track.mode === 'showing') {
+                            track.mode = 'hidden'; // Hide subtitles
+                            subtitleBtn.classList.remove('active');
+                        } else {
+                            track.mode = 'showing'; // Show subtitles
+                            subtitleBtn.classList.add('active');
+                        }
+                    }
+                }
+            });
+
+        } else {
+            subtitleBtn.style.display = 'none'; // Hide subtitle button if no track
+        }
+
+        // Load and update initial share status from localStorage
+        const sharedState = JSON.parse(localStorage.getItem('videoPreviewSharedState') || '{}');
+        const videoSharedPlatforms = sharedState[videoInfo.url] || {};
+
+        updateShareStatusUI('youtube', videoSharedPlatforms.youtube);
+        updateShareStatusUI('tiktok', videoSharedPlatforms.tiktok);
+        updateShareStatusUI('facebook', videoSharedPlatforms.facebook);
+
+        // Add event listeners for share buttons
+        youtubeShareBtn.addEventListener('click', () => handleShare('youtube', videoInfo.url, youtubeShareBtn));
+        tiktokShareBtn.addEventListener('click', () => handleShare('tiktok', videoInfo.url, tiktokShareBtn));
+        facebookShareBtn.addEventListener('click', () => handleShare('facebook', videoInfo.url, facebookShareBtn));
 
     } else {
         // Handle case where no video info is found (e.g., direct access)
         console.error('No video info found in sessionStorage.');
         previewTitle.textContent = 'Không tìm thấy thông tin video';
         previewDesc.textContent = 'Vui lòng chọn video từ trang quản lý.';
+        previewViewCount.style.display = 'none'; // Hide view count
+        document.querySelector('.share-section-preview').style.display = 'none'; // Hide share section
         previewVideo.style.display = 'none'; // Hide video element
-         // Optionally hide action buttons
-         document.querySelector('.action-buttons-preview').style.display = 'none';
+        document.querySelector('.action-buttons-preview').style.display = 'none'; // Hide action buttons
     }
 
     // TODO: Add logic for Edit, Download, Delete buttons if needed
@@ -91,8 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadBtn.addEventListener('click', () => {
         alert('Tải video xuống');
         const link = document.createElement('a');
-        link.href = '#'; // Thay bằng URL video thực tế
-        link.download = 'video.mp4';
+        link.href = previewVideo.src; // Use the actual video source for download
+        link.download = `video-${videoInfo.title || 'preview'}.mp4`; // Suggest filename
         link.click();
     });
 
@@ -108,12 +206,12 @@ document.addEventListener('DOMContentLoaded', () => {
             previewVideo.muted = false;
             // Restore previous volume if it was 0 when muted
             if (previewVideo.volume === 0) {
-                 previewVideo.volume = 1; // Or restore from a saved value
-                 volumeSlider.value = 1;
+                previewVideo.volume = 1; // Or restore from a saved value
+                volumeSlider.value = 1;
             }
         } else {
             previewVideo.muted = true;
-             volumeSlider.value = 0; // Move slider to 0
+            volumeSlider.value = 0;
         }
         updateVolumeIcon();
     });
@@ -130,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Initial volume slider and icon state
-    volumeSlider.value = previewVideo.volume; // Sync slider with initial video volume
+    // volumeSlider.value = previewVideo.volume; // Sync slider with initial video volume - causes error if video not loaded
     updateVolumeIcon(); // Set initial icon
 
     // Listen for volume changes outside of slider (e.g., browser controls if they were enabled)

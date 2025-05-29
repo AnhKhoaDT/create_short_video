@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="./css/header.css">
     <link rel="stylesheet" href="./css/homepage.css">
     <link rel="stylesheet" href="./css/app.css">
+    <link rel="stylesheet" href="./css/video-manager.css"
 </head>
 <body class="font-sans">
     <div class="main-container">
@@ -36,6 +37,16 @@
                 </div>
             </section>
 
+            <!-- My Video Section -->
+            <section class="video-list-section">
+                <div class="container mx-auto px-4 py-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">My Favorite Videos</h2>
+                    <div id="homepageVideoList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Video cards sẽ được render ở đây -->
+                    </div>
+                </div>
+            </section>
+
             <!-- Trending Topics Section -->
             <section class="trending-section">
                 <div class="container mx-auto px-4 py-8">
@@ -52,52 +63,74 @@
             <!-- Script Input Section -->
             <section class="script-section">
                 <div class="container mx-auto px-4 py-8">
-                    <!-- Script Categories -->
-                    <div class="script-categories mb-6">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Chọn loại kịch bản để tạo</h3>
-                        <div class="categories-grid">
-                            <button class="category-btn" data-category="action">
-                                <iconify-icon icon="mdi:movie-action" class="mr-2"></iconify-icon>
-                                Hành động
-                            </button>
-                            <button class="category-btn" data-category="entertainment">
-                                <iconify-icon icon="mdi:movie" class="mr-2"></iconify-icon>
-                                Giải trí
-                            </button>
-                            <button class="category-btn" data-category="advertisement">
-                                <iconify-icon icon="mdi:advertisement" class="mr-2"></iconify-icon>
-                                Quảng cáo
-                            </button>
-                            <button class="category-btn" data-category="situation">
-                                <iconify-icon icon="mdi:human-greeting" class="mr-2"></iconify-icon>
-                                Tình huống
-                            </button>
-                            <button class="category-btn" data-category="education">
-                                <iconify-icon icon="mdi:school" class="mr-2"></iconify-icon>
-                                Giáo dục
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-semibold text-gray-800">Tạo kịch bản</h3>
-                            <div class="selected-category text-blue-600 font-medium">
-                                <span id="selectedCategoryText">Chưa chọn loại kịch bản</span>
+                    <!-- Main Create Video Block -->
+                    <div class="create-video-block bg-white rounded-xl shadow-lg p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">Tạo video</h2>
+                        <!-- AI Selection Block -->
+                        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                            <div class="flex items-center gap-4 flex-wrap">
+                                <span class="block text-lg font-semibold text-gray-700">Chọn loại AI tạo kịch bản</span>
+                                <button class="ai-btn" data-ai="openai">
+                                    <iconify-icon icon="mdi:robot" class="mr-2"></iconify-icon>
+                                    OpenAI
+                                </button>
+                                <button class="ai-btn" data-ai="deepseek">
+                                    <iconify-icon icon="mdi:robot-industrial" class="mr-2"></iconify-icon>
+                                    Deepseek
+                                </button>
+                                <button class="ai-btn" data-ai="gemini">
+                                    <iconify-icon icon="mdi:star-four-points" class="mr-2"></iconify-icon>
+                                    Gemini
+                                </button>
                             </div>
                         </div>
-                        <div class="relative">
-                            <textarea 
-                                id="inputScript" 
-                                class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                placeholder="Nhập nội dung kịch bản của bạn..."
-                                rows="4"
-                            ></textarea>
-                            <div class="absolute bottom-4 right-4 flex items-center space-x-2">
-                                <span id="charCount" class="text-sm text-gray-500">0/3000</span>
-                                <button class="send-button">
-                                    <iconify-icon icon="mdi:send" class="text-blue-500 text-xl"></iconify-icon>
+                        <!-- Script Categories -->
+                        <div class="script-categories mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4">Chọn loại kịch bản để tạo</h3>
+                            <div class="categories-grid">
+                                <button class="category-btn" data-category="action">
+                                    <iconify-icon icon="mdi:movie-action" class="mr-2"></iconify-icon>
+                                    Hành động
                                 </button>
+                                <button class="category-btn" data-category="entertainment">
+                                    <iconify-icon icon="mdi:movie" class="mr-2"></iconify-icon>
+                                    Giải trí
+                                </button>
+                                <button class="category-btn" data-category="advertisement">
+                                    <iconify-icon icon="mdi:advertisement" class="mr-2"></iconify-icon>
+                                    Quảng cáo
+                                </button>
+                                <button class="category-btn" data-category="situation">
+                                    <iconify-icon icon="mdi:human-greeting" class="mr-2"></iconify-icon>
+                                    Tình huống
+                                </button>
+                                <button class="category-btn" data-category="education">
+                                    <iconify-icon icon="mdi:school" class="mr-2"></iconify-icon>
+                                    Giáo dục
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Script Input -->
+                        <div class="bg-white rounded-lg shadow-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-semibold text-gray-800">Tạo kịch bản</h3>
+                                <div class="selected-category text-blue-600 font-medium">
+                                    <span id="selectedCategoryText">Chưa chọn loại kịch bản</span>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <textarea 
+                                    id="inputScript" 
+                                    class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    placeholder="Nhập nội dung kịch bản của bạn..."
+                                    rows="4"
+                                ></textarea>
+                                <div class="absolute bottom-4 right-4 flex items-center space-x-2">
+                                    <span id="charCount" class="text-sm text-gray-500">0/3000</span>
+                                    <button class="send-button">
+                                        <iconify-icon icon="mdi:send" class="text-blue-500 text-xl"></iconify-icon>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
