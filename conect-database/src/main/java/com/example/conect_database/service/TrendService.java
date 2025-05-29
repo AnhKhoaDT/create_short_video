@@ -31,7 +31,7 @@ public class TrendService {
     private ObjectMapper objectMapper;
     private static final String MODEL_NAME = "gemini-2.0-flash";
     private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/" + MODEL_NAME + ":generateContent";
-
+    private static final int MAX_TRENDS = 10;
     @PostConstruct
     public void init() {
         this.restTemplate = new RestTemplate();
@@ -79,7 +79,16 @@ public class TrendService {
                     .asText();
 
             List<Map<String, String>> suggestionsWithDescriptions = parseAPIResponse(responseText);
-            // trendRepository.deleteAll(); // Keep or remove based on your requirements
+
+
+            trendRepository.deleteAll(); // Keep or remove based on your requirements
+
+
+            // Giới hạn số lượng xu hướng lưu vào cơ sở dữ liệu
+            List<Map<String, String>> limitedSuggestions = suggestionsWithDescriptions.stream()
+                    .limit(MAX_TRENDS)
+                    .collect(Collectors.toList());
+
             List<Trend> savedTrends = saveTrendsToDatabase(suggestionsWithDescriptions, keyword, industry);
 
             String responseMessage = String.format("Successfully generated %d suggestions for %s in %s",

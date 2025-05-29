@@ -52,18 +52,38 @@
             <!-- Script Input Section -->
             <section class="script-section">
                 <div class="container mx-auto px-4 py-8">
+                    <!-- Script Categories -->
+                    <div class="script-categories mb-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Chọn loại kịch bản để tạo</h3>
+                        <div class="categories-grid">
+                            <button class="category-btn" data-category="action">
+                                <iconify-icon icon="mdi:movie-action" class="mr-2"></iconify-icon>
+                                Hành động
+                            </button>
+                            <button class="category-btn" data-category="entertainment">
+                                <iconify-icon icon="mdi:movie" class="mr-2"></iconify-icon>
+                                Giải trí
+                            </button>
+                            <button class="category-btn" data-category="advertisement">
+                                <iconify-icon icon="mdi:advertisement" class="mr-2"></iconify-icon>
+                                Quảng cáo
+                            </button>
+                            <button class="category-btn" data-category="situation">
+                                <iconify-icon icon="mdi:human-greeting" class="mr-2"></iconify-icon>
+                                Tình huống
+                            </button>
+                            <button class="category-btn" data-category="education">
+                                <iconify-icon icon="mdi:school" class="mr-2"></iconify-icon>
+                                Giáo dục
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="bg-white rounded-lg shadow-lg p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-semibold text-gray-800">Tạo kịch bản</h3>
-                            <div class="flex space-x-2">
-                                <button class="action-btn create-script">
-                                    <iconify-icon icon="mdi:file-document-edit" class="mr-2"></iconify-icon>
-                                    Tạo kịch bản
-                                </button>
-                                <button class="action-btn create-video">
-                                    <iconify-icon icon="mdi:video-plus" class="mr-2"></iconify-icon>
-                                    Tạo video
-                                </button>
+                            <div class="selected-category text-blue-600 font-medium">
+                                <span id="selectedCategoryText">Chưa chọn loại kịch bản</span>
                             </div>
                         </div>
                         <div class="relative">
