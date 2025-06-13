@@ -36,7 +36,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Slf4j
 public class SecurityConfig {
 
-    private  final String[] PUBLIC_ENDPOINTS = {"/users","/auth/log-in","/auth/verify", "/auth/logout","/auth/refresh","/trends","trends/suggestions","/suggest" };
+    private  final String[] PUBLIC_ENDPOINTS = {"/users","/auth/log-in","/auth/verify", "/auth/logout","/auth/refresh","/trends","trends/suggestions","/suggest","/scripts/generate","/tts"};
 
 
     @Autowired

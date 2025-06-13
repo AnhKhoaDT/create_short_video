@@ -1,3 +1,67 @@
+
+function updateSelectedCategoryText() {
+        const selectedCategoryText = document.getElementById('selectedCategoryText');
+        const activeBtn = document.querySelector('.category-btn.active');
+        if (activeBtn) {
+            const categoryText = activeBtn.textContent.trim();
+            selectedCategoryText.textContent = `Đã chọn: ${categoryText}`;
+            console.log('Updated category text:', categoryText);
+        } else {
+            selectedCategoryText.textContent = 'Chưa chọn loại kịch bản';
+            console.log('Reset category text');
+        }
+}
+// tạo spinner và overlay loading
+function showLoadingOverlay(message = 'Đang tạo kịch bản...') {
+    let overlay = document.getElementById('loadingOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'loadingOverlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = 0;
+        overlay.style.left = 0;
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.background = 'rgba(0,0,0,0.3)';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.zIndex = 9999;
+        overlay.innerHTML = `
+            <span style="
+                background: white;
+                padding: 32px 48px;
+                border-radius: 16px;
+                font-size: 1.3rem;
+                color: #2563eb;
+                box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            ">
+                <span class="spinner" style="
+                    width: 28px; height: 28px; border: 4px solid #e0e7ef; border-top: 4px solid #2563eb;
+                    border-radius: 50%; display: inline-block; animation: spin 1s linear infinite;
+                "></span>
+                ${message}
+            </span>
+        `;
+        document.body.appendChild(overlay);
+
+        // Spinner animation
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes spin { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }`;
+        document.head.appendChild(style);
+    } else {
+        overlay.style.display = 'flex';
+    }
+}
+
+function hideLoadingOverlay() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Kiểm tra xác thực
     const token = localStorage.getItem('token');
@@ -17,18 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedCategory = null;
     let selectedAI = null;
 
-    const selectedCategoryText = document.getElementById('selectedCategoryText');
-    function updateSelectedCategoryText() {
-        const activeBtn = document.querySelector('.category-btn.active');
-        if (activeBtn) {
-            const categoryText = activeBtn.textContent.trim();
-            selectedCategoryText.textContent = `Đã chọn: ${categoryText}`;
-            console.log('Updated category text:', categoryText);
-        } else {
-            selectedCategoryText.textContent = 'Chưa chọn loại kịch bản';
-            console.log('Reset category text');
-        }
-    }
+ 
 
     inputScript.addEventListener('input', function() {
         const length = this.value.length;
@@ -200,37 +253,43 @@ function useTrend(trendId) {
     window.location.href = 'video-manager.html';
 }
 
-// Xử lý gửi kịch bản
 async function handleSendScript() {
     const inputScript = document.getElementById('inputScript');
     const script = inputScript.value.trim();
-    const selectedCategory = document.querySelector('.category-btn.active')?.getAttribute('data-category');
+    const selectedCategoryBtn = document.querySelector('.category-btn.active');
+    const selectedCategory = selectedCategoryBtn?.getAttribute('data-category');
+    const selectedAIbtn = document.querySelector('.ai-btn.active');
+    const selectedAI = selectedAIbtn?.getAttribute('data-ai');
+    const sendButton = document.querySelector('.send-button');
 
-    console.log('Đã nhấn nút gửi kịch bản');
-    console.log('Nội dung kịch bản:', script);
-    console.log('Loại kịch bản đã chọn:', selectedCategory);
-
+    // Kiểm tra đủ điều kiện mới cho gửi
+    if (!selectedAI) {
+        showError('Vui lòng chọn mô hình AI!');
+        return;
+    }
     if (!selectedCategory) {
         showError('Vui lòng chọn loại kịch bản!');
         return;
     }
-
     if (!script) {
         showError('Vui lòng nhập nội dung kịch bản!');
         return;
     }
 
+    showLoadingOverlay('Đang tạo kịch bản...');
+
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:8080/create-video-service/scripts', {
+        const response = await fetch('http://localhost:8080/create-video-service/scripts/generate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
-                content: script,
-                category: selectedCategory
+                input: script,
+                category: selectedCategory,
+                aiModel: selectedAI
             })
         });
 
@@ -238,24 +297,27 @@ async function handleSendScript() {
             throw new Error('Failed to create script');
         }
 
-        const data = await response.json();
-        showSuccess('Tạo kịch bản thành công!');
-        
-        // Clear input and reset category
+        // Lưu nội dung kịch bản trả về từ API vào localStorage
+        const result = await response.json();
+        localStorage.setItem('createdScriptContent',JSON.stringify(result.data));
+        console.log('Script created successfully:', result.data);
+        // Xóa nội dung input sau khi tạo thành công
         inputScript.value = '';
-        document.getElementById('charCount').textContent = '0/3000';
-        document.querySelector('.category-btn.active')?.classList.remove('active');
-        // Update selected category text
-        updateSelectedCategoryText();
-        
-        // Redirect to script manager or handle the response as needed
-        if (data.scriptId) {
-            localStorage.setItem('currentScriptId', data.scriptId);
-            window.location.href = 'script-manager.html';
-        }
+        const charCount = document.getElementById('charCount');
+        if (charCount) charCount.textContent = `0/3000`;
+
+        showSuccess('Tạo kịch bản thành công!');
+        setTimeout(() => {
+            hideLoadingOverlay();
+            window.location.href = 'script-create.html';
+        }, 2000);
+
     } catch (error) {
         console.error('Error creating script:', error);
         showError('Không thể tạo kịch bản. Vui lòng thử lại sau.');
+    } finally {
+        sendButton.disabled = false;
+        sendButton.innerHTML = `<iconify-icon icon="mdi:send"></iconify-icon> Gửi`;
     }
 }
 
@@ -311,7 +373,7 @@ function loadHomepageVideos() {
                 <div class="video-stats">
                     <span class="view-count"><iconify-icon icon="mdi:eye"></iconify-icon> ${video.views} lượt xem</span>
                 </div>
-                
+
                 <!-- Action buttons -->
                 <div class="video-actions-compact flex justify-center gap-2">
                     <button class="edit-btn-compact" data-id="${video.id}"><iconify-icon icon="mdi:pencil"></iconify-icon> Sửa</button>
@@ -322,7 +384,7 @@ function loadHomepageVideos() {
 
             videoListContainer.appendChild(videoCard);
 
-            // TODO: Thêm xử lý sự kiện cho các nút Sửa, Tải xuống, Xóa nếu cần
+            // TODO: Thêm xử lý sự kiện cho các nút Sửa, Tải xuống, Xóa và nút Thêm vào danh sách yêu thích nếu cần
         });
     } else {
         // Hiển thị thông báo nếu không có video yêu thích nào

@@ -1,54 +1,58 @@
 document.addEventListener('DOMContentLoaded', () => {
     const scriptContentInput = document.getElementById('scriptContent');
-    const createScriptBtn = document.getElementById('createScriptBtn');
+    const regenerateBtn = document.getElementById('regenerateBtn');
+    const charCount = document.getElementById('charCount');
 
-    // Function to simulate script creation (replace with actual API call)
-    const createScript = async (content) => {
-        console.log('Creating script with content:', content);
-        // In a real application, you would call your backend API here.
-        // Example: fetch('/api/scripts', { method: 'POST', body: JSON.stringify({ content }) });
+    // Ban đầu: không cho sửa
+    scriptContentInput.setAttribute('readonly', true);
 
-        // Simulate an API call delay
-        return new Promise(resolve => {
-            setTimeout(() => {
-                // Simulate a successful creation
-                resolve({ success: true, message: 'Kịch bản đã được tạo thành công!' });
-            }, 1000); // Simulate 1 second delay
-        });
-    };
-
-    // Event listener for the create button
-    if (createScriptBtn) {
-        createScriptBtn.addEventListener('click', async () => {
-            const content = scriptContentInput.value.trim();
-
-            if (content) {
-                // Disable button and show loading indicator if needed
-                createScriptBtn.disabled = true;
-                createScriptBtn.innerHTML = '<iconify-icon icon="mdi:plus-circle"></iconify-icon> Đang tạo...';
-
-                try {
-                    const result = await createScript(content);
-                    
-                    if (result.success) {
-                        alert(result.message);
-                        scriptContentInput.value = '';
-                    } else {
-                        alert('Tạo kịch bản thất bại.');
-                    }
-
-                } catch (error) {
-                    console.error('Error creating script:', error);
-                    alert('Đã xảy ra lỗi khi tạo kịch bản.');
-                } finally {
-                    // Re-enable button
-                    createScriptBtn.disabled = false;
-                    createScriptBtn.innerHTML = '<iconify-icon icon="mdi:plus-circle"></iconify-icon> Tạo Kịch bản';
-                }
-
-            } else {
-                alert('Vui lòng nhập nội dung kịch bản.');
+    // Hiển thị nội dung kịch bản và cập nhật số ký tự
+    const createdScript = localStorage.getItem('createdScriptContent');
+    if (createdScript && scriptContentInput) {
+        try {
+            const data = JSON.parse(createdScript);
+            let content = `Tiêu đề: ${data.title}\n\n`;
+            if (Array.isArray(data.scenes)) {
+                data.scenes.forEach(scene => {
+                    content += `Cảnh ${scene.sceneNumber}:\n`;
+                    content += `Mô tả: ${scene.description}\n`;
+                    content += `Hội thoại: ${scene.dialogue}\n`;
+                    content += `Gợi ý hình ảnh: ${scene.imagePrompt}\n\n`;
+                });
             }
-        });
+            scriptContentInput.value = content.trim();
+        } catch (e) {
+            scriptContentInput.value = '';
+        }
+        // Cập nhật số ký tự khi load
+        if (charCount) {
+            charCount.textContent = `${scriptContentInput.value.length} ký tự`;
+        }
+        // localStorage.removeItem('createdScriptContent');
     }
-}); 
+
+    // Cập nhật số ký tự khi nhập
+    scriptContentInput.addEventListener('input', function() {
+        if (charCount) {
+            charCount.textContent = `${this.value.length} ký tự`;
+        }
+    });
+
+    // Xử lý nút chỉnh sửa/lưu
+    regenerateBtn.addEventListener('click', function() {
+        if (scriptContentInput.hasAttribute('readonly')) {
+            // Đổi sang cho phép sửa
+            scriptContentInput.removeAttribute('readonly');
+            regenerateBtn.innerHTML = `<iconify-icon icon="mdi:content-save" class="mr-1"></iconify-icon>Lưu kịch bản`;
+            scriptContentInput.focus();
+        } else {
+            // Đổi sang không cho sửa và lưu lại nếu muốn
+            scriptContentInput.setAttribute('readonly', true);
+            regenerateBtn.innerHTML = `<iconify-icon icon="mdi:refresh" class="mr-1"></iconify-icon>Chỉnh sửa kịch bản`;
+            // Lưu lại nội dung mới vào localStorage
+            localStorage.setItem('createdScriptContent', JSON.stringify({
+                content: scriptContentInput.value
+            }));
+        }
+    });
+});

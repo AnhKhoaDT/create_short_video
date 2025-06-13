@@ -1,0 +1,29 @@
+package com.example.conect_database.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "scenes")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Scene {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
+
+    int sceneNumber;         // Số thứ tự phân cảnh
+    @Column(columnDefinition = "TEXT") // Tăng độ dài cho mô tả cảnh
+    private String description; // Mô tả cảnh (bối cảnh, hành động)
+
+    @Column(columnDefinition = "TEXT") // Tăng độ dài cho lời thoại
+    private String dialogue; // Lời thoại chính
+
+    @Column(columnDefinition = "TEXT") // Sử dụng TEXT để chứa dữ liệu dài
+    private String imagePrompt; // Gợi ý tạo hình ảnh cho cảnh này
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "script_id")
+    Script script;
+}
