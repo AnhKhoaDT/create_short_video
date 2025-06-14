@@ -23,6 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let selectedVoice = null;
 
+    // Khôi phục giọng đọc đã chọn từ localStorage
+    const savedVoice = localStorage.getItem('selectedVoice');
+    if (savedVoice) {
+        selectedVoice = savedVoice;
+    }
+
     // Ban đầu: không cho sửa
     scriptContentInput.setAttribute('readonly', true);
 
@@ -31,18 +37,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (createdScript && scriptContentInput) {
         try {
             const data = JSON.parse(createdScript);
-            let content = `Tiêu đề: ${data.title}\n\n`;
-            if (Array.isArray(data.scenes)) {
+            // Kiểm tra nếu là định dạng mới (chỉ có 'content')
+            if (data && typeof data === 'object' && data.content !== undefined) {
+                scriptContentInput.value = data.content.trim();
+            } else if (data && typeof data === 'object' && data.title !== undefined && Array.isArray(data.scenes)) {
+                // Nếu là định dạng cũ (có 'title' và 'scenes')
+                let content = `Tiêu đề: ${data.title}\n\n`;
                 data.scenes.forEach(scene => {
                     content += `Cảnh ${scene.sceneNumber}:\n`;
                     content += `Mô tả: ${scene.description}\n`;
                     content += `Hội thoại: ${scene.dialogue}\n`;
                     content += `Gợi ý hình ảnh: ${scene.imagePrompt}\n\n`;
                 });
+                scriptContentInput.value = content.trim();
+            } else {
+                // Trường hợp JSON không đúng định dạng mong muốn, coi như là plain text
+                scriptContentInput.value = createdScript.trim();
             }
-            scriptContentInput.value = content.trim();
         } catch (e) {
-            scriptContentInput.value = '';
+            // Nếu JSON.parse thất bại (createdScript là plain text thuần túy)
+            scriptContentInput.value = createdScript.trim();
         }
         // Cập nhật số ký tự khi load
         if (charCount) {
@@ -68,55 +82,85 @@ document.addEventListener('DOMContentLoaded', () => {
             // Đổi sang không cho sửa và lưu lại nếu muốn
             scriptContentInput.setAttribute('readonly', true);
             regenerateBtn.innerHTML = `<iconify-icon icon="mdi:refresh" class="mr-1"></iconify-icon>Chỉnh sửa kịch bản`;
+            
             // Lưu lại nội dung mới vào localStorage
             localStorage.setItem('createdScriptContent', JSON.stringify({
                 content: scriptContentInput.value
             }));
+
+            // Xóa tất cả audio cache cũ
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('audio_')) {
+                    localStorage.removeItem(key);
+                }
+            });
+
+            // Nếu có giọng đã chọn, fetch lại audio mới
+            if (selectedVoice) {
+                fetchAndCacheAudio(selectedVoice);
+            }
         }
     });
 
-    // Render voice options
-    function renderVoiceOptions() {
-        voiceGrid.innerHTML = ''; // Clear loading spinner
-        FPT_AI_VOICES.forEach(voice => {
-            const voiceCard = document.createElement('div');
-            voiceCard.classList.add('voice-card', 'p-4', 'border', 'border-gray-200', 'rounded-lg', 'text-center', 'cursor-pointer', 'hover:border-blue-500', 'transition-colors');
-            voiceCard.setAttribute('data-voice-id', voice.id);
-            voiceCard.innerHTML = `
-                <iconify-icon icon="mdi:account-voice" class="text-4xl text-gray-600 mb-2"></iconify-icon>
-                <p class="font-semibold text-gray-800">${voice.name}</p>
-                <button class="mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
-                    <iconify-icon icon="mdi:volume-high" class="mr-1"></iconify-icon>
-                    Nghe thử
-                </button>
-            `;
-
-            // Add click handler for voice selection
-            voiceCard.addEventListener('click', (e) => {
-                if (e.target.closest('button')) return;
-                const currentActive = voiceGrid.querySelector('.voice-card.border-blue-600');
-                if (currentActive) {
-                    currentActive.classList.remove('border-blue-600', 'bg-blue-50');
+    // Hàm kiểm tra token hết hạn
+    function checkTokenExpiration() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            // Xóa tất cả cache khi không có token
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('audio_')) {
+                    localStorage.removeItem(key);
                 }
-                voiceCard.classList.add('border-blue-600', 'bg-blue-50');
-                selectedVoice = voice.id;
             });
+            localStorage.removeItem('selectedVoice');
+            return;
+        }
 
-            // Add click handler for preview button
-            const previewButton = voiceCard.querySelector('button');
-            previewButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                previewVoice(voice.id);
+        try {
+            // Giải mã token để lấy thời gian hết hạn
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const expirationTime = payload.exp * 1000; // Chuyển sang milliseconds
+
+            if (Date.now() >= expirationTime) {
+                // Token đã hết hạn, xóa cache
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('audio_')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                localStorage.removeItem('selectedVoice');
+                localStorage.removeItem('token');
+            }
+        } catch (error) {
+            console.error('Lỗi khi kiểm tra token:', error);
+            // Nếu có lỗi khi giải mã token, xóa cache để đảm bảo an toàn
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('audio_')) {
+                    localStorage.removeItem(key);
+                }
             });
-
-            voiceGrid.appendChild(voiceCard);
-        });
+            localStorage.removeItem('selectedVoice');
+            localStorage.removeItem('token');
+        }
     }
 
-    // Function to preview voice
-    async function previewVoice(voiceId) {
+    // Kiểm tra token khi tải trang
+    checkTokenExpiration();
+
+    // Kiểm tra token mỗi phút
+    setInterval(checkTokenExpiration, 60000);
+
+    // Hàm fetch và cache audio
+    async function fetchAndCacheAudio(voiceId) {
         if (!scriptContentInput.value.trim()) {
-            alert('Vui lòng nhập nội dung kịch bản để nghe thử.');
+            return;
+        }
+
+        const cacheKey = `audio_${voiceId}_${scriptContentInput.value}`;
+        
+        // Nếu đã có trong cache thì không cần fetch lại
+        if (localStorage.getItem(cacheKey)) {
+            console.log('Audio đã có trong cache');
             return;
         }
 
@@ -135,30 +179,92 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
 
+            if (response.status === 401 || response.status === 403) {
+                // Token hết hạn hoặc không hợp lệ
+                checkTokenExpiration();
+                return;
+            }
+
             if (response.ok) {
                 const audioBlob = await response.blob();
                 if (audioBlob.size > 0 && (audioBlob.type === 'audio/mpeg' || audioBlob.type === 'audio/mp3')) {
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    const audio = new Audio(audioUrl);
-                    
-                    audio.play().then(() => {
-                        console.log('Audio playback started successfully.');
-                    }).catch(playError => {
-                        console.error('Lỗi khi phát âm thanh:', playError);
-                        alert('Không thể phát âm âm thanh. Vui lòng thử lại.');
-                    });
-                } else {
-                    alert('Không nhận được dữ liệu âm thanh hợp lệ từ máy chủ.');
+                    // Chuyển blob thành base64 để lưu vào localStorage
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioBlob);
+                    reader.onloadend = function() {
+                        const base64data = reader.result;
+                        localStorage.setItem(cacheKey, base64data);
+                        console.log('Đã lưu audio vào cache');
+                    }
                 }
-            } else {
-                const errorText = await response.text();
-                alert(`Lỗi khi nghe thử: ${response.status} - ${errorText}`);
             }
         } catch (error) {
             console.error('Lỗi khi gọi API TTS:', error);
-            alert('Có lỗi xảy ra khi kết nối đến dịch vụ TTS. Vui lòng thử lại.');
+            if (error.message.includes('401') || error.message.includes('403')) {
+                checkTokenExpiration();
+            }
         } finally {
             loadingOverlay.classList.add('hidden');
+        }
+    }
+
+    // Render voice options
+    function renderVoiceOptions() {
+        voiceGrid.innerHTML = ''; // Clear loading spinner
+        FPT_AI_VOICES.forEach(voice => {
+            const voiceCard = document.createElement('div');
+            voiceCard.classList.add('voice-card', 'p-4', 'border', 'border-gray-200', 'rounded-lg', 'text-center', 'cursor-pointer', 'hover:border-blue-500', 'transition-colors');
+            voiceCard.setAttribute('data-voice-id', voice.id);
+            voiceCard.innerHTML = `
+                <iconify-icon icon="mdi:account-voice" class="text-4xl text-gray-600 mb-2"></iconify-icon>
+                <p class="font-semibold text-gray-800">${voice.name}</p>
+            `;
+
+            // Highlight card nếu là giọng đã chọn
+            if (voice.id === selectedVoice) {
+                voiceCard.classList.add('border-blue-600', 'bg-blue-50');
+            }
+
+            // Add click handler for voice selection
+            voiceCard.addEventListener('click', () => {
+                const currentActive = voiceGrid.querySelector('.voice-card.border-blue-600');
+                if (currentActive) {
+                    currentActive.classList.remove('border-blue-600', 'bg-blue-50');
+                }
+                voiceCard.classList.add('border-blue-600', 'bg-blue-50');
+                selectedVoice = voice.id;
+                
+                // Lưu giọng đã chọn vào localStorage
+                localStorage.setItem('selectedVoice', voice.id);
+                
+                // Chỉ gọi API và lưu cache khi chọn giọng
+                fetchAndCacheAudio(voice.id);
+            });
+
+            voiceGrid.appendChild(voiceCard);
+        });
+    }
+
+    // Hàm phát audio từ cache
+    function playAudioFromCache(voiceId) {
+        if (!scriptContentInput.value.trim()) {
+            alert('Vui lòng nhập nội dung kịch bản để nghe thử.');
+            return;
+        }
+
+        const cacheKey = `audio_${voiceId}_${scriptContentInput.value}`;
+        const cachedAudio = localStorage.getItem(cacheKey);
+        
+        if (cachedAudio) {
+            const audio = new Audio(cachedAudio);
+            audio.play().then(() => {
+                console.log('Audio playback started successfully from cache.');
+            }).catch(playError => {
+                console.error('Lỗi khi phát âm thanh từ cache:', playError);
+                alert('Không thể phát âm thanh. Vui lòng thử lại.');
+            });
+        } else {
+            alert('Chưa có audio trong cache. Vui lòng chọn giọng đọc trước.');
         }
     }
 
@@ -172,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Vui lòng chọn một giọng đọc AI.');
                 return;
             }
-            previewVoice(selectedVoice);
+            playAudioFromCache(selectedVoice);
         });
     }
 });
