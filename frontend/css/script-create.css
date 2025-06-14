@@ -296,4 +296,14 @@
     border-color: #007bff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     outline: none;
+}
+
+.voice-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.voice-card.border-blue-600 {
+    border-color: #2563eb; /* blue-600 */
+    background-color: #eff6ff; /* blue-50 */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 } 

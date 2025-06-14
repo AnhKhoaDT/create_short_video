@@ -5,8 +5,11 @@ fetch('./component/header.html')
 
         // Lấy token từ localStorage
         const token = localStorage.getItem('token');
+        
+        // Lấy lại tham chiếu đến các phần tử sau khi header đã được chèn vào DOM
         const userInitial = document.getElementById("userInitial");
         const loginText = document.getElementById("loginText");
+        
         let username = null;
 
         // Hàm giải mã Base64
@@ -35,20 +38,22 @@ fetch('./component/header.html')
         }
 
         // Hàm hiển thị user mặc định (khi chưa đăng nhập)
-        const displayDefaultUser = () => {
-            userInitial.innerHTML = `
-                <iconify-icon 
-                    icon="mdi:account" 
-                    style="color: white;" 
-                    width="24" 
-                    height="24"
-                ></iconify-icon>
-            `;
-            if (loginText) {
-                loginText.textContent = 'Đăng nhập';
-                loginText.classList.remove('text-white');
-                loginText.classList.add('text-blue-400', 'hover:underline', 'cursor-pointer');
-                loginText.onclick = () => {
+        const displayDefaultUser = (userInitialElement, loginTextElement) => {
+            if (userInitialElement) {
+                userInitialElement.innerHTML = `
+                    <iconify-icon 
+                        icon="mdi:account" 
+                        style="color: white;" 
+                        width="24" 
+                        height="24"
+                    ></iconify-icon>
+                `;
+            }
+            if (loginTextElement) {
+                loginTextElement.textContent = 'Đăng nhập';
+                loginTextElement.classList.remove('text-white');
+                loginTextElement.classList.add('text-blue-400', 'hover:underline', 'cursor-pointer');
+                loginTextElement.onclick = () => {
                     window.location.href = 'login.html';
                 };
             }
@@ -56,8 +61,8 @@ fetch('./component/header.html')
 
         // Nếu không có token, hiển thị mặc định
         if (!token) {
-            displayDefaultUser();
-            setupHeaderEvents(null);
+            displayDefaultUser(userInitial, loginText);
+            setupHeaderEvents(null, userInitial, loginText);
             return;
         }
 
@@ -73,8 +78,8 @@ fetch('./component/header.html')
             if (payload.exp && payload.exp < currentTime) {
                 console.warn('Token đã hết hạn');
                 localStorage.removeItem('token');
-                displayDefaultUser();
-                setupHeaderEvents(null);
+                displayDefaultUser(userInitial, loginText);
+                setupHeaderEvents(null, userInitial, loginText);
                 if (window.location.pathname !== '/login.html') {
                     window.location.href = 'login.html';
                 }
@@ -83,7 +88,9 @@ fetch('./component/header.html')
 
             if (username) {
                 // Cập nhật userInitial (chữ cái đầu của username)
-                userInitial.textContent = username.charAt(0).toUpperCase();
+                if (userInitial) {
+                    userInitial.textContent = username.charAt(0).toUpperCase();
+                }
 
                 // Cập nhật loginText thành username
                 if (loginText) {
@@ -103,18 +110,18 @@ fetch('./component/header.html')
                 }));
             } else {
                 console.warn('Không tìm thấy username trong token');
-                displayDefaultUser();
+                displayDefaultUser(userInitial, loginText);
             }
         } else {
             console.error('Không thể giải mã token');
             localStorage.removeItem('token');
-            displayDefaultUser();
+            displayDefaultUser(userInitial, loginText);
         }
 
-        setupHeaderEvents(username);
+        setupHeaderEvents(username, userInitial, loginText);
 
         // Hàm setup các sự kiện cho header
-        function setupHeaderEvents(username) {
+        function setupHeaderEvents(username, userInitialElement, loginTextElement) {
             const menuToggle = document.getElementById('menu-toggle');
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
@@ -160,8 +167,8 @@ fetch('./component/header.html')
                 });
             }
 
-            if (userInitial && username) {
-                userInitial.addEventListener('click', () => {
+            if (userInitialElement && username) {
+                userInitialElement.addEventListener('click', () => {
                     window.location.href = 'profile.html';
                 });
             }
@@ -188,70 +195,39 @@ fetch('./component/header.html')
                     window.location.href = './image-manager.html';
                 });
             }
+            
+            // Handle loginText click if it's not already handled by token logic
+            if (loginTextElement && !username) {
+                loginTextElement.addEventListener('click', () => {
+                    window.location.href = 'login.html';
+                });
+            }
+
+            // Handle user initial display from localStorage (fallback/alternative)
+            const userNameFromLocalStorage = localStorage.getItem('userName');
+            if (userNameFromLocalStorage && userInitialElement && !username) { // Only if no username from token
+                userInitialElement.textContent = userNameFromLocalStorage.charAt(0).toUpperCase();
+                userInitialElement.style.display = 'flex'; // Show the initial
+                if (loginTextElement) {
+                    loginTextElement.textContent = userNameFromLocalStorage; // Show the username
+                    loginTextElement.style.cursor = 'default';
+                    loginTextElement.style.textDecoration = 'none';
+                }
+            } else if (!userNameFromLocalStorage && userInitialElement && !username) {
+                userInitialElement.style.display = 'none'; // Hide the initial if not logged in and no token
+            }
+
+            // Add event listeners for the sidebar navigation items (links)
+            const sidebarItems = document.querySelectorAll('.sidebar-item a');
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', (event) => {
+                    // If you handle routing via JS framework, prevent default
+                    // event.preventDefault();
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    // Allow default link behavior to navigate
+                });
+            });
         }
     })
     .catch(error => console.error('Lỗi khi tải header:', error));
-
-document.addEventListener('DOMContentLoaded', () => {
-    const menuToggle = document.getElementById('menu-toggle');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const loginText = document.getElementById('loginText');
-    const userInitial = document.getElementById('userInitial');
-
-    // Get the navigation buttons by their new IDs
-    // const videoNavBtn = document.getElementById('videoNavBtn'); // Removed
-    // const scriptNavBtn = document.getElementById('scriptNavBtn'); // Removed
-    // const imageNavBtn = document.getElementById('imageNavBtn'); // Removed
-
-    // Function to toggle sidebar visibility
-    const toggleSidebar = () => {
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('visible');
-    };
-
-    // Event listener for menu toggle button
-    if (menuToggle) {
-        menuToggle.addEventListener('click', toggleSidebar);
-    }
-
-    // Event listener for overlay to close sidebar
-    if (overlay) {
-        overlay.addEventListener('click', toggleSidebar);
-    }
-
-    // Event listener for login text
-    if (loginText) {
-        loginText.addEventListener('click', () => {
-            // TODO: Add login functionality or redirect
-            alert('Chuyển đến trang đăng nhập');
-        });
-    }
-
-     // TODO: Implement actual user login state handling
-     // For now, just show a placeholder initial if user is conceptually logged in
-    const userName = localStorage.getItem('userName'); // Example: get from localStorage
-    if (userName) {
-        userInitial.textContent = userName.charAt(0).toUpperCase();
-        userInitial.style.display = 'flex'; // Show the initial
-        loginText.textContent = userName; // Show the username
-        loginText.style.cursor = 'default';
-        loginText.style.textDecoration = 'none';
-    } else {
-         userInitial.style.display = 'none'; // Hide the initial if not logged in
-    }
-
-    // Add event listeners for the sidebar navigation items
-    const sidebarItems = document.querySelectorAll('.sidebar-item a'); // Select links within sidebar items
-    sidebarItems.forEach(item => {
-        item.addEventListener('click', (event) => {
-            // Prevent default link behavior if you want to handle routing via JS framework
-            // event.preventDefault();
-            // Example: Navigate using JS framework or simply let the link work
-            console.log('Navigating to:', item.href);
-            // If not using a JS framework for routing, the default link behavior is fine
-            // If using JS framework, add your routing logic here.
-        });
-    });
-
-});

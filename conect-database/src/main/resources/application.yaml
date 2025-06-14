@@ -20,3 +20,7 @@ jwt:
 
 google:
   api-key: "AIzaSyChfJLX7tJsS2bFfP03axS_ty6jJnZN8JM"
+
+fpt:
+  ai:
+    api-key: "NSE8CyLx74lpILOf3FrCIGx9MuRrmfdQ"
