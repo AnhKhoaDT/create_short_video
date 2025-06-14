@@ -1,6 +1,6 @@
 package com.example.conect_database.Controller;
 
-import com.example.conect_database.dto.TtsRequestDTO;
+import com.example.conect_database.dto.request.TtsRequest;
 import com.example.conect_database.service.TtsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -20,7 +20,7 @@ public class TtsController {
     private TtsService ttsService;
 
     @PostMapping("/synthesize")
-    public ResponseEntity<Resource> convertTextToSpeech(@RequestBody TtsRequestDTO request) {
+    public ResponseEntity<Resource> convertTextToSpeech(@RequestBody TtsRequest request) {
         try {
             FileSystemResource audioFile = ttsService.synthesizeSpeech(request.getText(), request.getVoice());
             byte[] audioBytes = audioFile.getInputStream().readAllBytes();
