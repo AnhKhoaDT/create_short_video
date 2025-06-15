@@ -1,39 +1,38 @@
 package com.example.conect_database.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-
+import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 @Service
 public class TranslationService {
 
     private static final Logger logger = LoggerFactory.getLogger(TranslationService.class);
-
-    @Value("${openai.api-key}")
-    private String openaiApiKey;
-
-    private WebClient openaiWebClient;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    
+    @Value("${google.api-key}")
+    private String apiKey;
+    
+    private RestTemplate restTemplate;
+    private ObjectMapper objectMapper;
+    private static final String MODEL_NAME = "gemini-2.0-flash";
+    private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/" + MODEL_NAME + ":generateContent";
 
     @PostConstruct
     public void init() {
-        logger.info("Initializing OpenAI WebClient");
-        this.openaiWebClient = WebClient.builder()
-            .baseUrl("https://api.openai.com/v1/")
-            .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + openaiApiKey)
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .build();
-        logger.info("OpenAI WebClient initialized successfully");
+        this.restTemplate = new RestTemplate();
+        this.objectMapper = new ObjectMapper();
     }
 
     public String translateText(String text) {
@@ -43,50 +42,43 @@ public class TranslationService {
 
         logger.info("Attempting to translate text: {}", text);
         try {
-            String requestBody = objectMapper.writeValueAsString(new TranslationRequest(
-                "gpt-3.5-turbo", 
-                List.of(new Message("user", "Translate the following text to English: " + text))
-            ));
+            String prompt = String.format(
+                "Translate the following Vietnamese text to English. Only return the translated text, no explanations: %s",
+                text
+            );
 
-            String response = openaiWebClient.post()
-                .uri("chat/completions")
-                .bodyValue(requestBody)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, Object> requestBody = new HashMap<>();
+            List<Map<String, Object>> contents = new ArrayList<>();
+            Map<String, Object> contentMap = new HashMap<>();
+            List<Map<String, String>> parts = new ArrayList<>();
+            Map<String, String> part = new HashMap<>();
+            part.put("text", prompt);
+            parts.add(part);
+            contentMap.put("parts", parts);
+            contents.add(contentMap);
+            requestBody.put("contents", contents);
+
+            String url = GEMINI_API_URL + "?key=" + apiKey;
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+            String response = restTemplate.postForObject(url, request, String.class);
 
             JsonNode root = objectMapper.readTree(response);
-            String translatedText = root.path("choices").get(0).path("message").path("content").asText();
+            String translatedText = root.path("candidates")
+                    .get(0)
+                    .path("content")
+                    .path("parts")
+                    .get(0)
+                    .path("text")
+                    .asText();
+            
             logger.info("Translated text: {}", translatedText);
             return translatedText;
-        } catch (WebClientResponseException e) {
-            logger.error("HTTP Error calling OpenAI API: {}: {}", e.getRawStatusCode(), e.getStatusText());
-            logger.error("Response Body: {}", e.getResponseBodyAsString());
-            return text; // Return original text on error
         } catch (Exception e) {
-            logger.error("General Error calling OpenAI API: {}", e.getMessage(), e);
-            return text; // Return original text on error
-        }
-    }
-
-    // Helper classes for OpenAI API request/response
-    static class TranslationRequest {
-        public String model;
-        public List<Message> messages;
-
-        public TranslationRequest(String model, List<Message> messages) {
-            this.model = model;
-            this.messages = messages;
-        }
-    }
-
-    static class Message {
-        public String role;
-        public String content;
-
-        public Message(String role, String content) {
-            this.role = role;
-            this.content = content;
+            logger.error("Error calling Gemini API: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to translate text: " + e.getMessage());
         }
     }
 } 

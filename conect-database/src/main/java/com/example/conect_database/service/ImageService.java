@@ -62,12 +62,12 @@ public class ImageService {
             String translatedScriptContent = translationService.translateText(scriptContent);
             String translatedScriptCategory = translationService.translateText(scriptCategory);
 
-            // Tạo prompt
+            // Create prompt
             String promptText = "A cinematic scene from a " + translatedScriptCategory + " video script: " + translatedScriptContent;
             
             logger.info("Generated prompt: {}", promptText);
 
-            // Tạo form data với MultipartBodyBuilder
+            // Create form data with MultipartBodyBuilder
             MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
             bodyBuilder.part("prompt", promptText);
             bodyBuilder.part("output_format", "png");
