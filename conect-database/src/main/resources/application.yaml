@@ -24,3 +24,10 @@ google:
 fpt:
   ai:
     api-key: "NSE8CyLx74lpILOf3FrCIGx9MuRrmfdQ"
+
+image:
+  api-key: "sk-hC9XhyOHQw2XMolz4X47kMDZErryeu1cKbrpQlIhaZ0JoDsZ"
+stable:
+  diffusion:
+    api-url: "https://api.stability.ai/v2beta/stable-image/generate/core"
+
