@@ -46,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 data.scenes.forEach(scene => {
                     content += `Cảnh ${scene.sceneNumber}:\n`;
                     content += `Mô tả: ${scene.description}\n`;
-                    content += `Hội thoại: ${scene.dialogue}\n`;
                     content += `Gợi ý hình ảnh: ${scene.imagePrompt}\n\n`;
                 });
                 scriptContentInput.value = content.trim();
@@ -150,13 +149,44 @@ document.addEventListener('DOMContentLoaded', () => {
     // Kiểm tra token mỗi phút
     setInterval(checkTokenExpiration, 60000);
 
+    function extractTextForTTS(rawContent) {
+        const lines = rawContent.split('\n');
+        const result = [];
+    
+        for (let line of lines) {
+            line = line.trim();
+    
+            if (
+                line.startsWith('Tiêu đề:') ||
+                /^Cảnh \d+:/.test(line) ||
+                line.startsWith('Mô tả:')
+            ) {
+                // Nếu là dòng tiêu đề/cảnh/mô tả thì lấy phần sau dấu ":"
+                const colonIndex = line.indexOf(':');
+                if (colonIndex !== -1) {
+                    const cleaned = line.slice(colonIndex + 1).trim();
+                    if (cleaned) result.push(cleaned);
+                }
+            }
+    
+            // Bỏ qua dòng Gợi ý hình ảnh
+            if (line.startsWith('Gợi ý hình ảnh:')) {
+                continue;
+            }
+        }
+    
+        return result.join(' ');
+    }
+    
+
     // Hàm fetch và cache audio
     async function fetchAndCacheAudio(voiceId) {
-        if (!scriptContentInput.value.trim()) {
-            return;
-        }
-
-        const cacheKey = `audio_${voiceId}_${scriptContentInput.value}`;
+        const rawScript = scriptContentInput.value.trim();
+        if (!rawScript) return;
+    
+        // Xử lý loại bỏ các dòng không cần TTS
+        const cleanText = extractTextForTTS(rawScript);
+        const cacheKey = `audio_${voiceId}_${cleanText}`;
         
         // Nếu đã có trong cache thì không cần fetch lại
         if (localStorage.getItem(cacheKey)) {
@@ -174,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: JSON.stringify({
-                    text: scriptContentInput.value,
+                    text: cleanText,
                     voice: voiceId
                 })
             });
@@ -252,7 +282,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const cacheKey = `audio_${voiceId}_${scriptContentInput.value}`;
+            // Sử dụng extractTextForTTS để tạo key giống như khi cache
+        const cleanText = extractTextForTTS(scriptContentInput.value);
+        const cacheKey = `audio_${voiceId}_${cleanText}`;
         const cachedAudio = localStorage.getItem(cacheKey);
         
         if (cachedAudio) {
@@ -279,6 +311,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             playAudioFromCache(selectedVoice);
+        });
+    }
+
+    // Handle Continue Button click to go to image selection screen
+    const continueBtn = document.getElementById('continueBtn');
+    if (continueBtn) {
+        continueBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            window.location.href = 'image-create-from-script.html';
         });
     }
 });

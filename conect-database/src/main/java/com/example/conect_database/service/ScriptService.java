@@ -45,10 +45,15 @@ public class ScriptService {
         try {
             // Tạo prompt gửi cho AI
             String prompt = String.format(
-                    "Hãy chia kịch bản video ngắn với chủ đề '%s' thuộc thể loại '%s' thành 5 phân cảnh. " +
-                            "Mỗi phân cảnh gồm: 1. Mô tả cảnh (1-2 câu); 2. Lời thoại chính (nếu có); 3. Tích hợp mô tả chính của cảnh, viết ít nhất 2 câu miêu tả chi tiết ánh sáng, góc quay, phong cách hình ảnh và các yếu tố đặc biệt, giúp tạo ra hình ảnh sống động và phù hợp với thể loại kịch bản. " +
-                            "Định dạng: mỗi cảnh là một khối văn bản với cấu trúc phẳng, bắt đầu bằng 'Scene X:' trên một dòng riêng, tiếp theo là 'Description: [nội dung]' trên dòng riêng, 'Dialogue: [nội dung]' trên dòng riêng (nếu có), 'ImagePrompt: [nội dung]' trên dòng riêng. Không sử dụng dấu * hoặc markdown, chỉ dùng text phẳng. Không giải thích thêm.",
-                    request.getInput(), request.getCategory()
+                "Hãy chia kịch bản video ngắn với chủ đề '%s' thuộc thể loại '%s' thành 5 phân cảnh. " +
+                "Mỗi phân cảnh cần bao gồm một đoạn mô tả cảnh hoàn chỉnh (ít nhất 3 câu), trong đó kết hợp tự nhiên cả phần mô tả không gian, hành động và lời thoại nhân vật (nếu có). " +
+                "Lời thoại phải được nhúng vào mô tả cảnh một cách tự nhiên, ví dụ như 'Lúc này nhân vật nói: \"...\"' hoặc các cách phù hợp khác tùy nội dung cảnh. " +
+                "Bên cạnh đó, với mỗi cảnh, viết thêm một dòng 'ImagePrompt: [mô tả chi tiết hình ảnh]' để có thể sinh ra ảnh nền phù hợp. " +
+                "Cảnh đầu tiên nên mở đầu bằng một cụm từ dẫn chuyện tự nhiên, mang tính mở đầu như 'Mở đầu câu chuyện', 'Lúc bấy giờ', 'Khi mọi chuyện bắt đầu', hoặc tương đương – nhưng không nên dùng các từ chuyển cảnh như 'Tiếp đến' hay 'Sau đó'. " +
+                "Các cảnh tiếp theo nên bắt đầu bằng một từ/cụm từ chuyển cảnh như 'Tiếp đến', 'Sau đó', 'Trong khi đó', 'Lúc này', hoặc tương đương để tạo cảm giác kể chuyện liền mạch. " +
+                "Định dạng: Mỗi cảnh bắt đầu bằng 'Scene X:' trên một dòng riêng, tiếp theo là đoạn mô tả cảnh (văn bản liền mạch), và dòng cuối cùng là 'ImagePrompt: [nội dung]'. " +
+                "Không sử dụng markdown hay ký hiệu đặc biệt. Không giải thích thêm.",
+                request.getInput(), request.getCategory()
             );
 
             // Thiết lập header Content-Type
@@ -141,35 +146,36 @@ public class ScriptService {
 
         String[] lines = response.split("\n");
         int sceneNumber = 0;
-        String description = "", dialogue = "", imagePrompt = "";
+        StringBuilder descriptionBuilder = new StringBuilder();
+        String imagePrompt = "";
+        boolean inScene = false;
         for (String line : lines) {
             line = line.trim();
             if (line.startsWith("Scene")) {
-                // Khi gặp một scene mới, thêm scene trước đó vào danh sách
-                if (sceneNumber > 0) {
+                // Nếu đang ở trong một scene, lưu lại scene trước đó
+                if (inScene) {
                     scenes.add(Scene.builder()
                             .sceneNumber(sceneNumber)
-                            .description(description)
-                            .dialogue(dialogue)
+                            .description(descriptionBuilder.toString().trim())                 
                             .imagePrompt(imagePrompt)
                             .build());
                 }
                 sceneNumber++;
-                description = ""; dialogue = ""; imagePrompt = "";
-            } else if (line.startsWith("Description:")) {
-                description = line.replace("Description:", "").trim();
-            } else if (line.startsWith("Dialogue:")) {
-                dialogue = line.replace("Dialogue:", "").trim();
+                descriptionBuilder = new StringBuilder();
+                imagePrompt = "";
+                inScene = true;
             } else if (line.startsWith("ImagePrompt:")) {
                 imagePrompt = line.replace("ImagePrompt:", "").trim();
+            } else if (!line.isEmpty()) {
+                if (descriptionBuilder.length() > 0) descriptionBuilder.append(" ");
+                descriptionBuilder.append(line);
             }
         }
         // Thêm scene cuối cùng nếu có
-        if (sceneNumber > 0) {
+        if (inScene) {
             scenes.add(Scene.builder()
                     .sceneNumber(sceneNumber)
-                    .description(description)
-                    .dialogue(dialogue)
+                    .description(descriptionBuilder.toString().trim())
                     .imagePrompt(imagePrompt)
                     .build());
         }
@@ -184,7 +190,6 @@ public class ScriptService {
                 .map(scene -> SceneResponse.builder()
                         .sceneNumber(scene.getSceneNumber())
                         .description(scene.getDescription())
-                        .dialogue(scene.getDialogue())
                         .imagePrompt(scene.getImagePrompt())
                         .build())
                 .collect(Collectors.toList());

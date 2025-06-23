@@ -23,9 +23,12 @@
                     <!-- Script Display (Optional - could also just use script from storage) -->
                     <div class="mb-6">
                         <h3 class="text-xl font-semibold text-gray-800 mb-4">Kịch bản:</h3>
-                        <div id="scriptPreview" class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 italic max-h-40 overflow-y-auto">
-                            <!-- Script content will be loaded here by JS -->
-                            Đang tải kịch bản...
+                        <textarea id="scriptEditor" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" rows="8" readonly></textarea>
+                        <div class="flex justify-end mt-2">
+                            <button id="editScriptBtn" class="btn-secondary">
+                                <iconify-icon icon="mdi:refresh" class="mr-1"></iconify-icon>
+                                Chỉnh sửa kịch bản
+                            </button>
                         </div>
                     </div>
 

@@ -2,6 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const scriptInput = document.getElementById('scriptInput');
     const generateImagesBtn = document.getElementById('generateImagesBtn');
     const imageGrid = document.getElementById('imageGrid');
+    const scriptEditor = document.getElementById('scriptEditor');
+    const saveScriptBtn = document.getElementById('saveScriptBtn');
+    const editScriptBtn = document.getElementById('editScriptBtn');
 
     // Handle sample image selection
     const sampleImages = document.querySelectorAll('.group');
@@ -67,6 +70,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Load script from localStorage
+    const createdScript = localStorage.getItem('createdScriptContent');
+    if (createdScript && scriptEditor) {
+        try {
+            const data = JSON.parse(createdScript);
+            if (data && typeof data === 'object' && data.content !== undefined) {
+                scriptEditor.value = data.content.trim();
+            } else if (data && typeof data === 'object' && data.title !== undefined && Array.isArray(data.scenes)) {
+                // Nếu là định dạng cũ (có 'title' và 'scenes')
+                let content = `Tiêu đề: ${data.title}\n\n`;
+                data.scenes.forEach(scene => {
+                    content += `Cảnh ${scene.sceneNumber}:\n`;
+                    content += `Mô tả: ${scene.description}\n`;
+                    content += `Gợi ý hình ảnh: ${scene.imagePrompt}\n\n`;
+                });
+                scriptEditor.value = content.trim();
+            } else {
+                scriptEditor.value = createdScript.trim();
+            }
+        } catch (e) {
+            scriptEditor.value = createdScript.trim();
+        }
+    }
+
+    // Save script to localStorage
+    if (saveScriptBtn) {
+        saveScriptBtn.addEventListener('click', () => {
+            localStorage.setItem('createdScriptContent', JSON.stringify({
+                content: scriptEditor.value
+            }));
+            alert('Đã lưu kịch bản!');
+        });
+    }
+
     // Event listener for the generate button
     if (generateImagesBtn) {
         generateImagesBtn.addEventListener('click', async () => {
@@ -101,6 +138,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 alert('Vui lòng đảm bảo kịch bản đã được tải.');
+            }
+        });
+    }
+
+    if (editScriptBtn && scriptEditor) {
+        editScriptBtn.addEventListener('click', () => {
+            if (scriptEditor.hasAttribute('readonly')) {
+                // Chuyển sang cho phép sửa
+                scriptEditor.removeAttribute('readonly');
+                editScriptBtn.innerHTML = `<iconify-icon icon="mdi:content-save" class="mr-1"></iconify-icon>Lưu kịch bản`;
+                scriptEditor.focus();
+            } else {
+                // Lưu lại và chuyển về readonly
+                scriptEditor.setAttribute('readonly', true);
+                editScriptBtn.innerHTML = `<iconify-icon icon="mdi:refresh" class="mr-1"></iconify-icon>Chỉnh sửa kịch bản`;
+                localStorage.setItem('createdScriptContent', JSON.stringify({
+                    content: scriptEditor.value
+                }));
+                alert('Đã lưu kịch bản!');
             }
         });
     }

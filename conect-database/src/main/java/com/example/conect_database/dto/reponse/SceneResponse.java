@@ -11,6 +11,5 @@ import lombok.experimental.FieldDefaults;
 public class SceneResponse {
     int sceneNumber;
     String description;
-    String dialogue;
     String imagePrompt;
 }
