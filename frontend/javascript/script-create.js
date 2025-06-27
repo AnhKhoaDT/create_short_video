@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const cleanText = extractTextForTTS(rawScript);
             const cacheKey = `audio_${selectedVoice}_${cleanText}`;
             const audioUrl = localStorage.getItem(cacheKey);
-            const scriptData = JSON.parse(localStorage.getItem('createdScriptData')); // Lưu toàn bộ json của kịch bản
+            const scriptData = JSON.parse(localStorage.getItem('createdScriptContent')); // Lưu toàn bộ json của kịch bản
             const scriptId = scriptData ? scriptData.id : null;
 
             if (!audioUrl) {
@@ -332,9 +332,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Gửi lên backend
             try {
+                const token = localStorage.getItem('token');
                 await fetch(`http://localhost:8080/create-video-service/scripts/${scriptId}/audio-url`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({ audioUrl })
                 });
             } catch (err) {

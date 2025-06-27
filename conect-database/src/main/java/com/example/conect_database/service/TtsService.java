@@ -36,11 +36,17 @@ public class TtsService {
     public String synthesizeSpeechAndUpload(String text, String voice) throws IOException, InterruptedException {
         // Create output directory if it doesn't exist
         Files.createDirectories(Path.of(OUTPUT_DIR));
+        // Loại bỏ dấu " trong text
+        text = text.replace("\"", "");
         // Prepare headers
         HttpHeaders headers = new HttpHeaders();
         headers.set("api-key", apiKey);
         headers.set("voice", voice);
         headers.setContentType(new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8));
+        // In ra body gửi lên FPT.AI
+        System.out.println("[TTS] Body gửi lên FPT.AI:");
+        System.out.println("text: " + text);
+        System.out.println("voice: " + voice);
         // Make initial API request
         RestTemplate restTemplate = new RestTemplate();
         System.out.println("Đang gửi yêu cầu TTS ban đầu đến FPT.AI...");

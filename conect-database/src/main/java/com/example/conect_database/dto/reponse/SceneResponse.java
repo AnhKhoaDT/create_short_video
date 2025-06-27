@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SceneResponse {
+    Long id;
     int sceneNumber;
     String description;
     String imagePrompt;

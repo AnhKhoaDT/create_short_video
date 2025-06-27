@@ -185,6 +185,7 @@ const token = localStorage.getItem('token');
 
 try {
     const response = await fetch('http://localhost:8080/create-video-service/trends/suggestions', {
+        method:'POST',
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -310,6 +311,7 @@ try {
     showSuccess('Tạo kịch bản thành công!');
     setTimeout(() => {
         hideLoadingOverlay();
+       
         window.location.href = 'script-create.html';
     }, 2000);
 

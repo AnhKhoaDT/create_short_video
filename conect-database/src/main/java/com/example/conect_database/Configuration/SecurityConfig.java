@@ -36,8 +36,23 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Slf4j
 public class SecurityConfig {
 
-    private  final String[] PUBLIC_ENDPOINTS = {"/users","/auth/log-in","/auth/verify", "/auth/logout","/auth/refresh","/trends","trends/suggestions","/suggest","/scripts/generate","/tts","/images/generate","images","images/save","images/cloudinary","images/delete-by-url"};
-
+    private final String[] PUBLIC_ENDPOINTS = {
+        "/users",
+        "/auth/log-in",
+        "/auth/verify",
+        "/auth/logout",
+        "/auth/refresh",
+        "/trends",
+        "/trends/suggestions",
+        "/suggest",
+        "/scripts/generate",
+        "/tts",
+        "/images/generate",
+        "/images",
+        "/images/save",
+        "/images/cloudinary",
+        "/images/delete-by-url"
+    };
 
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
@@ -48,11 +63,14 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests ->
-                requests.requestMatchers(HttpMethod.POST , PUBLIC_ENDPOINTS).permitAll()
-                        //.requestMatchers(HttpMethod.GET , "/users").hasRole(Role.ADMIN.name()) replace method
-                        .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .anyRequest().authenticated());
+                        requests
+                                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                                //.requestMatchers(HttpMethod.GET , "/users").hasRole(Role.ADMIN.name()) replace method
+                                .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
+                                .requestMatchers(HttpMethod.PUT, "/scripts/{scriptId}/audio-url","/scripts/scenes/images").permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .anyRequest().authenticated()
+                );
 
 
         httpSecurity.oauth2ResourceServer(oauth2 -> {

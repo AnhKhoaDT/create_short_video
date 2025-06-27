@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import com.example.conect_database.dto.request.SceneImangeUpdataRequest;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -45,14 +46,14 @@ public class ScriptService {
         try {
             // Tạo prompt gửi cho AI
             String prompt = String.format(
-                "Hãy chia kịch bản video ngắn với chủ đề '%s' thuộc thể loại '%s' thành 5 phân cảnh. " +
+                "Hãy chia kịch bản video ngắn với chủ đề '%s' thuộc thể loại '%s' thành 1 phân cảnh. " +
                 "Mỗi phân cảnh cần bao gồm một đoạn mô tả cảnh hoàn chỉnh (ít nhất 3 câu), trong đó kết hợp tự nhiên cả phần mô tả không gian, hành động và lời thoại nhân vật (nếu có). " +
-                "Lời thoại phải được nhúng vào mô tả cảnh một cách tự nhiên, ví dụ như 'Lúc này nhân vật nói: \"...\"' hoặc các cách phù hợp khác tùy nội dung cảnh. " +
+                "Lời thoại phải được lồng vào mô tả cảnh một cách tự nhiên, KHÔNG đặt trong ngoặc kép, chỉ cần viết như hội thoại thường, ví dụ: Lúc này nhân vật nói: Tôi sẽ đi ngay bây giờ. hoặc các cách phù hợp khác tùy nội dung cảnh. " +
                 "Bên cạnh đó, với mỗi cảnh, viết thêm một dòng 'ImagePrompt: [mô tả chi tiết hình ảnh]' để có thể sinh ra ảnh nền phù hợp. " +
                 "Cảnh đầu tiên nên mở đầu bằng một cụm từ dẫn chuyện tự nhiên, mang tính mở đầu như 'Mở đầu câu chuyện', 'Lúc bấy giờ', 'Khi mọi chuyện bắt đầu', hoặc tương đương – nhưng không nên dùng các từ chuyển cảnh như 'Tiếp đến' hay 'Sau đó'. " +
                 "Các cảnh tiếp theo nên bắt đầu bằng một từ/cụm từ chuyển cảnh như 'Tiếp đến', 'Sau đó', 'Trong khi đó', 'Lúc này', hoặc tương đương để tạo cảm giác kể chuyện liền mạch. " +
                 "Định dạng: Mỗi cảnh bắt đầu bằng 'Scene X:' trên một dòng riêng, tiếp theo là đoạn mô tả cảnh (văn bản liền mạch), và dòng cuối cùng là 'ImagePrompt: [nội dung]'. " +
-                "Không sử dụng markdown hay ký hiệu đặc biệt. Không giải thích thêm.",
+                "Không sử dụng markdown, ký hiệu đặc biệt hay ngoặc kép cho lời thoại. Không giải thích thêm.",
                 request.getInput(), request.getCategory()
             );
 
@@ -188,6 +189,7 @@ public class ScriptService {
     private ScriptResponse mapToResponse(Script script) {
         List<SceneResponse> sceneResponses = script.getScenes().stream()
                 .map(scene -> SceneResponse.builder()
+                        .id(scene.getId())
                         .sceneNumber(scene.getSceneNumber())
                         .description(scene.getDescription())
                         .imagePrompt(scene.getImagePrompt())
@@ -209,5 +211,18 @@ public class ScriptService {
             .orElseThrow(() -> new RuntimeException("Script not found"));
         script.setAudioUrl(audioUrl);
         return scriptRepository.save(script);
+    }
+
+    public void updateSceneImageUrl(Long sceneId, String imageUrl) {
+        Scene scene = sceneRepository.findById(sceneId)
+                .orElseThrow(() -> new RuntimeException("Scene not found with id: " + sceneId));
+        scene.setImageUrl(imageUrl);
+        sceneRepository.save(scene);
+    }
+
+    public void updateMultipleSceneImageUrls(List<SceneImangeUpdataRequest> requests) {
+        for (SceneImangeUpdataRequest req : requests) {
+            updateSceneImageUrl(req.getSceneId(), req.getImageUrl());
+        }
     }
 }

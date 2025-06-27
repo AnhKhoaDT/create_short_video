@@ -299,8 +299,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 imagesDiv.appendChild(selectedImg);
             }
 
-            // Render tất cả ảnh trong scene.images (chỉ hiển thị nếu chưa có selectedImage)
-            if (!scene.selectedImage && scene.images.length > 0) {
+            // Render loading nếu đang tạo ảnh
+            if (scene.loading) {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'flex items-center justify-center py-4';
+                loadingDiv.innerHTML = `
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
+                    <span class="text-gray-600">Đang tạo ảnh...</span>
+                `;
+                imagesDiv.appendChild(loadingDiv);
+            }
+
+            // Render tất cả ảnh trong scene.images (chỉ hiển thị nếu chưa có selectedImage và không loading)
+            if (!scene.selectedImage && scene.images.length > 0 && !scene.loading) {
                 const imgUrl = scene.images[0];
                 const imgEl = document.createElement('img');
                 imgEl.src = imgUrl;
@@ -316,6 +327,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 imagesDiv.appendChild(imgEl);
             }
 
+            // Hiển thị lỗi nếu có
+            if (scene.error) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'text-red-500 mb-2';
+                errorDiv.textContent = scene.error;
+                imagesDiv.appendChild(errorDiv);
+            }
+
             // Sự kiện tạo ảnh (chỉ gọi API khi nhấn nút)
             card.querySelector('.generate-image-btn').onclick = async () => {
                 const promptInput = card.querySelector('.scene-prompt');
@@ -328,11 +347,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const category = localStorage.getItem('selectedCategory') || '';
                 try {
                     const token = localStorage.getItem('token');
-                    console.log({
-                        title: title,
-                        scriptContent: scene.imagePrompt,
-                        scriptCategory: category
-                    });
                     const response = await fetch('http://localhost:8080/create-video-service/images/generate', {
                         method: 'POST',
                         headers: {
@@ -353,6 +367,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     scene.selectedImage = imgUrl;
                     if (imgUrl) {
                         localStorage.setItem('imgScene' + scene.sceneNumber, imgUrl);
+                    } else {
+                        scene.selectedImage = null;
+                        localStorage.removeItem('imgScene' + scene.sceneNumber);
                     }
                     scene.error = null;
                 } catch (err) {
@@ -374,12 +391,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     scene.images = [selectedUrl];
                     scene.selectedImage = selectedUrl;
                     localStorage.setItem('imgScene' + scene.sceneNumber, selectedUrl);
+                    scene.error = null;
                     saveScenesToLocalStorage();
                     renderScenes();
                 });
             };
             card.querySelector('.scene-prompt').oninput = () => {
                 scene.selectedImage = null;
+                localStorage.removeItem('imgScene' + scene.sceneNumber);
             };
             container.appendChild(card);
         });
@@ -387,14 +406,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateSelectAllBtn();
     }
 
-    generateVideoBtn.onclick = () => {
-        const notSelected = scenes.find(scene => !scene.selectedImage);
+    generateVideoBtn.onclick = async () => {
+        // Lấy thông tin scene từ createdScriptContent
+        const scriptData = JSON.parse(localStorage.getItem('createdScriptContent') || '{}');
+        const scenesData = scriptData.scenes || [];
+        // Chuẩn bị dữ liệu gửi lên backend
+        const sceneImages = scenesData.map(scene => ({
+            sceneId: scene.id || scene.sceneId || scene.sceneNumber,
+            imageUrl: localStorage.getItem(`imgScene${scene.sceneNumber}`) || null,
+            // Thêm các trường khác nếu cần
+        }));
+        // Kiểm tra cảnh nào chưa chọn ảnh
+        const notSelected = sceneImages.find(scene => !scene.imageUrl);
         if (notSelected) {
-            alert(`Vui lòng chọn ảnh nền cho cảnh ${notSelected.sceneNumber}!`);
+            alert(`Vui lòng chọn ảnh nền cho cảnh ${notSelected.sceneId || notSelected.sceneNumber}!`);
             return;
         }
-        alert('Tất cả cảnh đã chọn ảnh nền. Tiến hành tạo video...');
-        // Xử lý tiếp...
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:8080/create-video-service/scripts/scenes/images', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(sceneImages)
+            });
+            if (!response.ok) throw new Error('Lưu ảnh thất bại');
+            alert('Đã lưu các ảnh vào database thành công!');
+          
+            
+            // Có thể reload lại trang hoặc chuyển hướng nếu muốn
+        } catch (err) {
+            alert('Lỗi khi lưu ảnh: ' + err.message);
+        }
     };
 
     // Sự kiện cho nút tạo ảnh nền từ kịch bản
