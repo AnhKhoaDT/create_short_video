@@ -216,16 +216,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (response.ok) {
-                const audioBlob = await response.blob();
-                if (audioBlob.size > 0 && (audioBlob.type === 'audio/mpeg' || audioBlob.type === 'audio/mp3')) {
-                    // Chuyển blob thành base64 để lưu vào localStorage
-                    const reader = new FileReader();
-                    reader.readAsDataURL(audioBlob);
-                    reader.onloadend = function() {
-                        const base64data = reader.result;
-                        localStorage.setItem(cacheKey, base64data);
-                        console.log('Đã lưu audio vào cache');
-                    }
+                const cloudUrl = await response.text();
+                if (cloudUrl && cloudUrl.startsWith('http')) {
+                    localStorage.setItem(cacheKey, cloudUrl);
+                    console.log('Đã lưu link audio vào cache');
                 }
             }
         } catch (error) {
@@ -317,8 +311,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle Continue Button click to go to image selection screen
     const continueBtn = document.getElementById('continueBtn');
     if (continueBtn) {
-        continueBtn.addEventListener('click', (event) => {
+        continueBtn.addEventListener('click', async (event) => {
             event.preventDefault();
+            const selectedVoice = localStorage.getItem('selectedVoice');
+            const rawScript = scriptContentInput.value.trim();
+            const cleanText = extractTextForTTS(rawScript);
+            const cacheKey = `audio_${selectedVoice}_${cleanText}`;
+            const audioUrl = localStorage.getItem(cacheKey);
+            const scriptData = JSON.parse(localStorage.getItem('createdScriptData')); // Lưu toàn bộ json của kịch bản
+            const scriptId = scriptData ? scriptData.id : null;
+
+            if (!audioUrl) {
+                alert('Vui lòng chọn giọng đọc và tạo audio trước khi tiếp tục!');
+                return;
+            }
+            if (!scriptId) {
+                alert('Không tìm thấy scriptId. Vui lòng tạo kịch bản trước!');
+                return;
+            }
+
+            // Gửi lên backend
+            try {
+                await fetch(`http://localhost:8080/create-video-service/scripts/${scriptId}/audio-url`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ audioUrl })
+                });
+            } catch (err) {
+                alert('Lỗi khi cập nhật audio cho kịch bản!');
+                return;
+            }
+
+            // Chuyển sang bước tiếp theo...
             window.location.href = 'image-create-from-script.html';
         });
     }

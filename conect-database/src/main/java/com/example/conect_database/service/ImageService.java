@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.http.client.MultipartBodyBuilder;
 import java.util.Base64;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.example.conect_database.Repository.ImageRepository;
+import com.example.conect_database.entity.Image;
 
 @Service
 public class ImageService {
@@ -32,10 +32,15 @@ public class ImageService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final TranslationService translationService;
+    private final CloudinaryService  cloudinaryService;
 
     @Autowired
-    public ImageService(TranslationService translationService) {
+    private ImageRepository imageRepository;
+
+    @Autowired
+    public ImageService(TranslationService translationService, CloudinaryService cloudinaryService) {
         this.translationService = translationService;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @PostConstruct
@@ -51,19 +56,20 @@ public class ImageService {
         logger.info("WebClient initialized successfully");
     }
 
-    public List<String> generateImages(String scriptContent, String scriptCategory) {
+    public List<String> generateImages(String scriptContent, String scriptCategory, String title) {
         logger.info("Starting image generation for category: {} with content length: {}", 
-            scriptCategory, scriptContent.length());
+            scriptCategory, scriptContent,title.length());
         
-        List<String> imageUrlsOrBase64 = new ArrayList<>();
+            List<String> imageUrls = new ArrayList<>();
 
         try {
             // Translate script content and category to English
             String translatedScriptContent = translationService.translateText(scriptContent);
             String translatedScriptCategory = translationService.translateText(scriptCategory);
+            String translatedTiltle = translationService.translateText(title);
 
             // Create prompt
-            String promptText = "A cinematic scene from a " + translatedScriptCategory + " video script: " + translatedScriptContent;
+            String promptText = "Create a image from a " + translatedScriptCategory + " video script: " + translatedScriptContent + "tiêu đề" + translatedTiltle;
             
             logger.info("Generated prompt: {}", promptText);
 
@@ -87,13 +93,15 @@ public class ImageService {
 
             if (responseBytes != null) {
                 logger.info("Received image data with size: {} bytes", responseBytes.length);
-                String base64Image = Base64.getEncoder().encodeToString(responseBytes);
-                String dataUri = "data:image/png;base64," + base64Image;
-                imageUrlsOrBase64.add(dataUri);
-                logger.info("Successfully generated and encoded image. Base64 length: {}", base64Image.length());
-            } else {
-                logger.error("Received null response from API");
-            }
+                    // Upload to Cloudinary
+                    String folder = "image/";
+                    String imageUrl = cloudinaryService.uploadImage(responseBytes, folder);
+    
+                    imageUrls.add(imageUrl);
+                    logger.info("Uploaded to Cloudinary: {}", imageUrl);
+                } else {
+                    logger.error("Received null response from Stable Diffusion API");
+                }
         } catch (WebClientResponseException e) {
             logger.error("HTTP Error calling Stable Diffusion API: {}: {}", e.getRawStatusCode(), e.getStatusText());
             String responseBody = e.getResponseBodyAsString();
@@ -112,7 +120,15 @@ public class ImageService {
             throw new RuntimeException("Failed to generate images from Stable Diffusion API.", e);
         }
 
-        logger.info("Image generation completed. Generated {} images", imageUrlsOrBase64.size());
-        return imageUrlsOrBase64;
+        logger.info("Image generation completed. Total images: {}", imageUrls.size());
+        return imageUrls;
+    }
+
+    public Image saveImage(Image image) {
+        return imageRepository.save(image);
+    }
+
+    public List<Image> getAllImages() {
+        return imageRepository.findAll();
     }
 }

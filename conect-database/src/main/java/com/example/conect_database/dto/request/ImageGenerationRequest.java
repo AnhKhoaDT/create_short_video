@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ImageGenerationRequest {
+    String title;
     String scriptContent;
     String scriptCategory;
 } 

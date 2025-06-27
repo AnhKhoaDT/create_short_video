@@ -26,8 +26,12 @@ fpt:
     api-key: "NSE8CyLx74lpILOf3FrCIGx9MuRrmfdQ"
 
 image:
-  api-key: "sk-hC9XhyOHQw2XMolz4X47kMDZErryeu1cKbrpQlIhaZ0JoDsZ"
+  api-key: "sk-esPkZElVmyLqgTNTOVfsPUXFlxpgYzjbkiVbFfpXV0TFRD7d"
 stable:
   diffusion:
     api-url: "https://api.stability.ai/v2beta/stable-image/generate/core"
 
+cloudinary:
+  cloud-name: "dznu5vdav"
+  api-key: "239327892691647"
+  api-secret: "uy6pCI3twAebYHHJ-CoocX6DUdA"

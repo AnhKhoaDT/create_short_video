@@ -30,12 +30,7 @@
                     <div id="image-list" class="image-grid">
                         <!-- Image cards will be loaded here by JavaScript -->
                         <!-- Example Image Card (can be removed once JS is implemented) -->
-                        <div class="image-card">
-                            <img src="https://via.placeholder.com/150" alt="Sample Image" class="image-thumbnail">
-                            <div class="image-details">
-                                <h3 class="image-title">Hình ảnh Mẫu 1</h3>
-                                <p class="image-description">Mô tả ngắn về hình ảnh.</p>
-                            </div>
+                        <div c
                             <div class="image-actions">
                                 <button class="action-button view-button">
                                     <iconify-icon icon="mdi:eye"></iconify-icon>
@@ -56,6 +51,15 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- Modal chọn ảnh -->
+    <div id="imageSelectModal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span id="closeImageModal" class="close">&times;</span>
+        <h2>Chọn ảnh từ thư viện</h2>
+        <div id="modalImageList" class="image-grid"></div>
+      </div>
     </div>
 
     <script src="./javascript/header.js"></script>

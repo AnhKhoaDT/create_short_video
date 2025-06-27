@@ -87,7 +87,7 @@ public class ScriptService {
                     .path("text")
                     .asText();
             
-            log.info("AI response: {}", responseText);
+            
             // Parse text thành danh sách các scene
             List<Scene> scenes = parseScenesFromAIResponse(responseText);
             log.info("Parsed scenes: {}", scenes);
@@ -202,5 +202,12 @@ public class ScriptService {
                 .createdAt(script.getCreatedAt())
                 .scenes(sceneResponses)
                 .build();
+    }
+
+    public Script updateAudioUrl(Long scriptId, String audioUrl) {
+        Script script = scriptRepository.findById(scriptId)
+            .orElseThrow(() -> new RuntimeException("Script not found"));
+        script.setAudioUrl(audioUrl);
+        return scriptRepository.save(script);
     }
 }

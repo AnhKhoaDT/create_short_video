@@ -14,11 +14,11 @@ public class TrendController {
     @Autowired
     private TrendService trendService;
 
-    @GetMapping("/suggestions")
-    public TrendResponse getSuggestions() {
+    //@GetMapping("/suggestions")
+    //public TrendResponse getSuggestions() {
            
-        return trendService.getGeminiSuggestions();
-    }
+        //return trendService.getGeminiSuggestions();
+    //}
 
     @GetMapping("/industry/{industry}")
     public List<Trend> getTrendsByIndustry(@PathVariable String industry) {

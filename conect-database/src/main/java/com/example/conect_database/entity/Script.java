@@ -19,12 +19,19 @@ public class Script {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
     @Column(columnDefinition = "TEXT")
     String title;
+
     @Column(columnDefinition = "TEXT") // Tiêu đề kịch bản
     String category;
+
     @Column(columnDefinition = "TEXT") // Thể loại (hành động, giải trí, ...)
     String aiModel;         // Mô hình AI sử dụng
+
+    @Column(columnDefinition = "TEXT") // Thêm trường audioUrl
+    String audioUrl;        // Đường dẫn audio
+
     LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "script", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

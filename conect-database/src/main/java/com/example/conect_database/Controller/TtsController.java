@@ -20,21 +20,13 @@ public class TtsController {
     private TtsService ttsService;
 
     @PostMapping("/synthesize")
-    public ResponseEntity<Resource> convertTextToSpeech(@RequestBody TtsRequest request) {
+    public ResponseEntity<String> convertTextToSpeech(@RequestBody TtsRequest request) {
         try {
-            FileSystemResource audioFile = ttsService.synthesizeSpeech(request.getText(), request.getVoice());
-            byte[] audioBytes = audioFile.getInputStream().readAllBytes();
-            
-            ByteArrayResource resource = new ByteArrayResource(audioBytes);
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"voice.mp3\"")
-                    .contentType(MediaType.parseMediaType("audio/mp3"))
-                    .contentLength(audioBytes.length)
-                    .body(resource);
+            String cloudUrl = ttsService.synthesizeSpeechAndUpload(request.getText(), request.getVoice());
+            return ResponseEntity.ok(cloudUrl);
         } catch (IOException | InterruptedException e) {
             System.err.println("Lỗi trong quá trình chuyển văn bản thành giọng nói: " + e.getMessage());
-            e.printStackTrace(); // In ra toàn bộ stack trace
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }

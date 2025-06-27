@@ -1,4 +1,3 @@
-
 function updateSelectedCategoryText() {
     const selectedCategoryText = document.getElementById('selectedCategoryText');
     const activeBtn = document.querySelector('.category-btn.active');
@@ -125,11 +124,13 @@ categoriesGrid.addEventListener('click', function(e) {
     if (btn.classList.contains('active')) {
         btn.classList.remove('active');
         selectedCategory = null;
+        localStorage.removeItem('selectedCategory');
         console.log('Category deselected');
     } else {
         categoriesGrid.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedCategory = category;
+        localStorage.setItem('selectedCategory', category);
         console.log('Category selected:', selectedCategory);
     }
     updateSelectedCategoryText();

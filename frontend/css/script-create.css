@@ -306,4 +306,18 @@
     border-color: #2563eb; /* blue-600 */
     background-color: #eff6ff; /* blue-50 */
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Hover xanh cho các nút chính trên trang tạo kịch bản */
+#continueBtn,
+#regenerateBtn,
+#previewBtn {
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+#continueBtn:hover,
+#regenerateBtn:hover,
+#previewBtn:hover {
+    background-color: #fff !important;
+    color: #2563eb !important;
+    border-color: #2563eb !important;
 } 
