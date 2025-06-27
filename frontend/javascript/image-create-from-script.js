@@ -414,7 +414,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const sceneImages = scenesData.map(scene => ({
             sceneId: scene.id || scene.sceneId || scene.sceneNumber,
             imageUrl: localStorage.getItem(`imgScene${scene.sceneNumber}`) || null,
-            // Thêm các trường khác nếu cần
         }));
         // Kiểm tra cảnh nào chưa chọn ảnh
         const notSelected = sceneImages.find(scene => !scene.imageUrl);
@@ -424,6 +423,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         try {
             const token = localStorage.getItem('token');
+            // 1. Lưu ảnh vào database
             const response = await fetch('http://localhost:8080/create-video-service/scripts/scenes/images', {
                 method: 'PUT',
                 headers: {
@@ -433,12 +433,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 body: JSON.stringify(sceneImages)
             });
             if (!response.ok) throw new Error('Lưu ảnh thất bại');
-            alert('Đã lưu các ảnh vào database thành công!');
-          
-            
-            // Có thể reload lại trang hoặc chuyển hướng nếu muốn
+
+            // 2. Chỉ chuyển sang trang preview, KHÔNG gọi API tạo video ở đây
+            const scriptId = scriptData.id || scriptData.scriptId;
+            if (!scriptId) {
+                alert('Không tìm thấy id kịch bản!');
+                return;
+            }
+            sessionStorage.setItem('videoLoading', 'true');
+            sessionStorage.setItem('videoScriptId', scriptId);
+            window.location.href = 'video-preview.html';
         } catch (err) {
             alert('Lỗi khi lưu ảnh: ' + err.message);
+            sessionStorage.removeItem('videoLoading');
         }
     };
 

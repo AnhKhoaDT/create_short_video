@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Get video info from sessionStorage
     const videoInfo = JSON.parse(sessionStorage.getItem('currentVideo'));
 
@@ -59,6 +59,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
         }, 1000); // Delay to allow share window to open
     };
+
+    // Hiển thị loading nếu đang tạo video
+    if (sessionStorage.getItem('videoLoading') === 'true') {
+        document.querySelector('.video-player-container').innerHTML = '';
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'flex items-center justify-center py-8';
+        loadingDiv.innerHTML = `
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span class="ml-3 text-gray-600">Đang tạo video...</span>
+        `;
+        document.querySelector('.video-player-container').appendChild(loadingDiv);
+        document.querySelector('.video-info').style.display = 'none';
+        document.querySelector('.share-section-preview').style.display = 'none';
+        document.querySelector('.action-buttons-preview').style.display = 'none';
+
+        // Gọi API tạo video nếu chưa có video
+        const scriptId = sessionStorage.getItem('videoScriptId');
+        if (scriptId) {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('http://localhost:8080/create-video-service/videos/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ scriptId: Number(scriptId) })
+                });
+                if (!res.ok) throw new Error('Tạo video thất bại');
+                const videoUrl = await res.text();
+
+                // Lưu thông tin video vào sessionStorage
+                // (bạn có thể lấy thêm title, description từ localStorage nếu muốn)
+                sessionStorage.setItem('currentVideo', JSON.stringify({
+                    url: videoUrl,
+                    title: '', // lấy từ localStorage nếu có
+                    description: ''
+                }));
+                sessionStorage.removeItem('videoLoading');
+                sessionStorage.removeItem('videoScriptId');
+                // Reload lại trang để render video
+                window.location.reload();
+            } catch (err) {
+                loadingDiv.innerHTML = `<span class="text-red-500">Lỗi khi tạo video: ${err.message}</span>`;
+            }
+        }
+        return;
+    }
 
     if (videoInfo) {
         // Set video source, title, description, and view count
