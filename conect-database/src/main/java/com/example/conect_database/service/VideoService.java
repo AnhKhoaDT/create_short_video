@@ -44,6 +44,7 @@ public class VideoService {
                 .collect(Collectors.joining(" "));
     
         List<Integer> sceneSplitIndexes = splitSceneByKeywords(fullText);
+      
 
         // 2. Tạo thư mục tạm
         Path tempDir = Files.createTempDirectory("video-gen");
@@ -58,10 +59,11 @@ public class VideoService {
         Path audioPath = tempDir.resolve("audio.mp3");
         downloadFileWithTimeout(audioUrl, audioPath);
 
+        Path whisperScriptPath = copyWhisperScriptToTemp();
         // Gọi script Python whisper_split.py để sinh scene_timestamps.json
         try {
             ProcessBuilder whisperPb = new ProcessBuilder(
-                "python", ".." + File.separator + "whisper-split" + File.separator + "whisper_split.py", audioPath.toString()
+                "/home/khoa123/conect-database/venv/bin/python", whisperScriptPath.toString(), audioPath.toString()
             );
             whisperPb.directory(tempDir.toFile());
             whisperPb.redirectErrorStream(true);
@@ -217,6 +219,21 @@ public class VideoService {
             String line = reader.readLine();
             return line != null ? Double.parseDouble(line) : 0;
         }
+    }
+
+
+    public Path copyWhisperScriptToTemp() throws IOException {
+        // Đọc file trong resources
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("whisper-split/whisper_split.py");
+        if (inputStream == null) {
+            throw new FileNotFoundException("Không tìm thấy whisper_split.py trong resources");
+        }
+
+        // Ghi ra file tạm
+        Path tempScriptPath = Files.createTempFile("whisper_split", ".py");
+        Files.copy(inputStream, tempScriptPath, StandardCopyOption.REPLACE_EXISTING);
+
+        return tempScriptPath;
     }
     
 }

@@ -5,7 +5,7 @@ server:
 
 spring:
   datasource:
-    url: "jdbc:mysql://localhost:3306/create_service"
+    url: "jdbc:mysql://172.26.32.1:3306/create_service"
     username: root
     password: Khoa06052004@#*
   jpa:
@@ -26,12 +26,12 @@ fpt:
     api-key: "NSE8CyLx74lpILOf3FrCIGx9MuRrmfdQ"
 
 image:
-  api-key: "sk-esPkZElVmyLqgTNTOVfsPUXFlxpgYzjbkiVbFfpXV0TFRD7d"
+  api-key: "sk-HmInFmdtQymsgtustu51j7UqgywROu1EG0aweUiY6gjADkuI"
 stable:
   diffusion:
     api-url: "https://api.stability.ai/v2beta/stable-image/generate/core"
 
 cloudinary:
-  cloud-name: "dznu5vdav"
-  api-key: "239327892691647"
-  api-secret: "uy6pCI3twAebYHHJ-CoocX6DUdA"
+  cloud-name: "ddwnlgjtm"
+  api-key: "613645411389895"
+  api-secret: "pTz5hD5F1u0ttfiQxmnD3JzxDVE"
