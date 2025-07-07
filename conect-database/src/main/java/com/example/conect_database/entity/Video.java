@@ -24,6 +24,12 @@ public class Video {
     @Column(columnDefinition = "TEXT")
     private String videoUrl;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(columnDefinition = "TEXT")
+    private String title;
+
     @Column(name = "created_at", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 

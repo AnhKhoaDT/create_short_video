@@ -35,3 +35,6 @@ tts-env/
 output/
 .env
 venv/
+venv310/
+# Ignore application.yaml (thêm vào application.yaml)
+application.yaml

@@ -2,7 +2,9 @@ package com.example.conect_database.service;
 
 import com.example.conect_database.entity.Script;
 import com.example.conect_database.entity.Scene;
+import com.example.conect_database.entity.Video;
 import com.example.conect_database.Repository.ScriptRepository;
+import com.example.conect_database.Repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +25,10 @@ public class VideoService {
     private static final Logger logger = LoggerFactory.getLogger(VideoService.class);
 
     private final ScriptRepository scriptRepository;
+    private final VideoRepository videoRepository;
     private final CloudinaryService cloudinaryService;
 
-    public String generateVideoFromScript(Long scriptId) throws Exception {
+    public Video generateVideoFromScript(Long scriptId) throws Exception {
 
         // 1. Lấy script và ảnh/audio
         Script script = scriptRepository.findById(scriptId)
@@ -63,7 +66,7 @@ public class VideoService {
         // Gọi script Python whisper_split.py để sinh scene_timestamps.json
         try {
             ProcessBuilder whisperPb = new ProcessBuilder(
-                "/home/khoa123/conect-database/venv/bin/python", whisperScriptPath.toString(), audioPath.toString()
+                "/home/khoa123/conect-database/venv310/bin/python", whisperScriptPath.toString(), audioPath.toString()
             );
             whisperPb.directory(tempDir.toFile());
             whisperPb.redirectErrorStream(true);
@@ -165,10 +168,32 @@ public class VideoService {
      //upload
         String videoUrl = cloudinaryService.uploadVideo(Files.readAllBytes(videoPath), "video/");
 
+        // 6. Lưu video vào database
+        Video video = Video.builder()
+                .script(script)
+                .videoUrl(videoUrl)
+                .build();
+        videoRepository.save(video);
+
         // 7. Dọn thư mục tạm
         cleanupTempDirectory(tempDir);
 
-        return videoUrl;
+        return video;
+    }
+
+    public List<Video> getAllVideos() {
+        return videoRepository.findAll();
+    }
+
+    public void deleteVideo(Long id) {
+        Video video = videoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Video not found"));
+        
+        // Xóa video khỏi Cloudinary (nếu cần)
+        // cloudinaryService.deleteVideo(video.getVideoUrl());
+        
+        // Xóa video khỏi database
+        videoRepository.delete(video);
     }
 
     private void downloadFileWithTimeout(String urlStr, Path targetPath) throws IOException {

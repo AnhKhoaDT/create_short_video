@@ -66,42 +66,6 @@
     object-fit: contain; /* Ensure video fits within the container without stretching */
 }
 
-/* Custom controls styling */
-.custom-controls {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.7); /* Semi-transparent dark background */
-    color: white;
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    box-sizing: border-box; /* Include padding in width */
-    opacity: 1; /* Visible by default */
-    transition: opacity 0.3s ease; /* Smooth fade effect */
-    z-index: 10; /* Ensure controls are above video */
-}
-
-/* Hide controls when video player container is not hovered or focused, 
-   but keep them visible for now for easier development/testing */
-/* .video-player-container:not(:hover) .custom-controls {
-    opacity: 0;
-} */
-
-.control-btn {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-size: 1.5rem; /* Icon size */
-    margin: 0 5px;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s ease;
-}
 
 .control-btn:hover {
     color: #007bff; /* Highlight color on hover */
@@ -143,63 +107,7 @@
     cursor: pointer;
 }
 
-.time {
-    font-size: 0.9rem;
-    margin: 0 5px;
-    color: white;
-}
 
-.volume-controls {
-    display: flex;
-    align-items: center;
-    margin-left: 10px;
-    gap: 5px;
-}
-
-.volume-btn {
-    font-size: 1.5rem; /* Match other control icons */
-}
-
-.volume-slider {
-    width: 80px; /* Adjust width as needed */
-    margin-left: 5px;
-    cursor: pointer;
-    -webkit-appearance: none; /* Remove default styles */
-    appearance: none;
-    height: 5px;
-    background: #555;
-    outline: none;
-    opacity: 0.9;
-    transition: opacity 0.2s;
-}
-
-.volume-slider:hover {
-    opacity: 1;
-}
-
-/* Style for volume slider thumb */
-.volume-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 12px;
-    height: 12px;
-    background: #fff;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.volume-slider::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
-    background: #fff;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.fullscreen-btn {
-    margin-left: auto; /* Push to the right */
-    font-size: 1.5rem; /* Icon size */
-}
 
 .video-info {
     padding: 20px;
@@ -242,27 +150,48 @@
 }
 
 .action-buttons-preview {
-    padding: 15px 20px;
-    background-color: #f1f1f1;
-    border-top: 1px solid #e0e0e0;
     display: flex;
-    justify-content: center; /* Center buttons */
-    gap: 15px; /* Space between buttons */
+    gap: 12px;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 12px;
 }
-
 .action-buttons-preview button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    min-width: 110px;
     font-size: 1rem;
+    padding: 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+.action-buttons-preview button iconify-icon {
+    margin: 0;
+    font-size: 1.2em;
+    vertical-align: middle;
     display: inline-flex;
     align-items: center;
-    transition: background-color 0.2s ease;
+    justify-content: center;
 }
 
-.action-buttons-preview button iconify-icon {
-    margin-right: 8px;
+/* Chia sẻ: icon to, đều, rõ ràng */
+.video-share-bar .share-item-preview {
+    flex-direction: column;
+    align-items: center;
+    margin-right: 18px;
+}
+.video-share-bar .share-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.video-share-bar .share-btn iconify-icon {
+    font-size: 2rem;
 }
 
 .edit-btn {
@@ -469,3 +398,153 @@
         justify-content: flex-start;
     }
 }
+
+/* Khu vực chia sẻ nằm trên cùng, hàng ngang, border dưới */
+.video-share-bar {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+    border-bottom: 1.5px solid #e5e7eb;
+    padding-bottom: 14px;
+    margin-bottom: 24px;
+    justify-content: flex-start;
+}
+.video-share-label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 1rem;
+    margin-right: 8px;
+}
+
+/* Tiêu đề video căn trái, border dưới */
+.video-title {
+    text-align: left;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #22223b;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 8px;
+    width: 100%;
+}
+
+/* Mô tả video dưới tiêu đề, border dưới */
+.video-desc {
+    text-align: left;
+    color: #495057;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 8px;
+    width: 100%;
+}
+
+/* Lượt xem dưới mô tả, border dưới */
+.video-stats {
+    text-align: left;
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 8px;
+    width: 100%;
+}
+
+/* Card preview căn trái, padding lớn hơn */
+.video-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 48px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* Video dài ra, tỉ lệ 16:9, responsive, margin dưới lớn hơn */
+.video-thumb {
+    width: 100%;
+    max-width: 900px;
+    aspect-ratio: 16/9;
+    height: auto;
+    border-radius: 12px;
+    background: #000;
+    object-fit: cover;
+    margin-bottom: 28px;
+    display: block;
+}
+
+@media (max-width: 1024px) {
+  .video-card {
+    max-width: 100vw;
+    padding: 16px 4px;
+  }
+  .video-thumb {
+    max-width: 100vw;
+    aspect-ratio: 16/9;
+  }
+  .action-buttons-preview button {
+    min-width: 80px;
+    font-size: 0.95rem;
+  }
+}
+
+.video-card-title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #374151;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 32px;
+    width: 100%;
+    letter-spacing: -1px;
+}
+
+/* Khu vực chia sẻ ở dưới cùng card */
+.video-share-section {
+    width: 100%;
+    margin-top: 32px;
+    border-top: 1.5px solid #e5e7eb;
+    padding-top: 18px;
+}
+.video-share-label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    text-align: left;
+}
+.video-share-row {
+    display: flex;
+    gap: 32px;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+.video-share-row .share-item-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+}
+.video-share-row .share-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.video-share-row .share-btn iconify-icon {
+    font-size: 2rem;
+}
+.video-share-row .share-status-preview {
+    margin-top: 6px;
+    font-size: 0.95rem;
+    text-align: center;
+}
+

@@ -180,6 +180,33 @@
     font-size: 1.25rem; /* Slightly larger icon */
 }
 
+/* Refresh Button */
+.refresh-btn {
+    background: #f8fafc;
+    color: #64748b;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    font-size: 1rem;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+.refresh-btn:hover {
+    background: #f1f5f9;
+    color: #475569;
+    border-color: #cbd5e1;
+}
+.refresh-btn:active {
+    transform: scale(0.95);
+}
+.refresh-btn iconify-icon {
+    margin-right: 0.5rem;
+    font-size: 1.25rem;
+}
+
 /* Video Card Grid */
 #videoList {
     margin-top: 1rem;

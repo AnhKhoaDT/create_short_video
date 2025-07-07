@@ -52,8 +52,9 @@ public class SecurityConfig {
         "/images/save",
         "/images/cloudinary",
         "/images/delete-by-url",
-        "/videos/generate"
-
+        "/videos/generate",
+        "/videos",
+        "/videos/{id}"
     };
 
     @Autowired

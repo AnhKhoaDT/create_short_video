@@ -11,105 +11,16 @@
     <script src="https://code.iconify.design/iconify-icon/1.0.5/iconify-icon.min.js"></script>
 </head>
 <body class="font-sans">
-    <div class="main-container">
-        <div id="header-placeholder"></div>
+    
+    <div id="header-placeholder"></div>
 
-        <!-- Main Content -->
-        <main>
-            <section class="video-preview-section" style="margin-top: 100px;">
-                <div class="preview-container">
-                    <div class="preview-card">
-                        <div class="preview-header">
-                            <h2>Xem trước Video</h2>
-                        </div>
-                        
-                        <div class="video-player-container">
-                             <!-- Video will be loaded by JS -->
-                            <video id="previewVideo"></video>
-                            <!-- Custom controls -->
-                            <div class="custom-controls">
-                                <!-- Nút Phát/Tạm dừng -->
-                                <button id="playPauseBtn" class="control-btn">
-                                    <iconify-icon icon="mdi:play"></iconify-icon>
-                                </button>
-                                <!-- Thanh tiến trình -->
-                                <input type="range" id="seekBar" value="0" min="0" max="100" class="seek-bar">
-                                <!-- Thời gian -->
-                                <span id="currentTime" class="time">0:00</span>
-                                <span class="time">/</span>
-                                <span id="duration" class="time">0:00</span>
-                                <!-- Nút phụ đề -->
-                                <button id="subtitleBtn" class="control-btn subtitle-btn" style="display: none;"> <!-- Hide by default if no subtitle track -->
-                                    <iconify-icon icon="mdi:subtitles-outline"></iconify-icon>
-                                </button>
-                                <!-- Điều khiển âm lượng -->
-                                <div class="volume-controls">
-                                    <button id="volumeBtn" class="control-btn volume-btn">
-                                        <iconify-icon icon="mdi:volume-high"></iconify-icon>
-                                    </button>
-                                    <input type="range" id="volumeSlider" value="1" min="0" max="1" step="0.01" class="volume-slider">
-                                </div>
-                                  
-                                <!-- Nút Toàn màn hình -->
-                                <button id="fullscreenBtn" class="control-btn fullscreen-btn">
-                                    <iconify-icon icon="mdi:fullscreen"></iconify-icon>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="video-info">
-                            <div class="video-info-header">
-                                <h3 id="previewTitle">Tên Video</h3>
-                                <span id="previewViewCount" class="video-stats-preview"><iconify-icon icon="mdi:eye"></iconify-icon> Loading lượt xem</span>
-                            </div>
-                            <p id="previewDesc">Mô tả video...</p>
-                        </div>
-
-                         <!-- Share Section -->
-                            <div class="share-section-preview">
-                                <h4>Chia sẻ video:</h4>
-                                <div class="share-items-preview">
-                                    <div class="share-item-preview">
-                                        <button class="share-btn youtube" title="Chia sẻ lên YouTube">
-                                            <iconify-icon icon="mdi:youtube"></iconify-icon>
-                                        </button>
-                                        <span class="share-status-preview youtube-status">Chưa chia sẻ</span>
-                                    </div>
-                                    <div class="share-item-preview">
-                                        <button class="share-btn tiktok" title="Chia sẻ lên TikTok">
-                                            <iconify-icon icon="mdi:alpha-t"></iconify-icon>
-                                        </button>
-                                        <span class="share-status-preview tiktok-status">Chưa chia sẻ</span>
-                                    </div>
-                                    <div class="share-item-preview">
-                                        <button class="share-btn facebook" title="Chia sẻ lên Facebook">
-                                            <iconify-icon icon="mdi:facebook"></iconify-icon>
-                                        </button>
-                                        <span class="share-status-preview facebook-status">Chưa chia sẻ</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                         <div class="action-buttons-preview">
-                            <button id="editBtn" class="edit-btn">
-                                <iconify-icon icon="mdi:pencil"></iconify-icon>
-                                Chỉnh sửa
-                            </button>
-                            <button id="downloadBtn" class="download-btn">
-                                <iconify-icon icon="mdi:download"></iconify-icon>
-                                Tải xuống
-                            </button>
-                             <!-- Add delete button if needed -->
-                            <!-- <button id="deleteBtn" class="delete-btn">
-                                <iconify-icon icon="mdi:delete"></iconify-icon>
-                                Xóa
-                            </button> -->
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
+    <section class="video-list-section">
+        <div class="container mx-auto px-4 py-8 mt-8">
+            <div id="homepageVideoList" class="flex justify-center">
+                <!-- Chỉ hiển thị một video card ở đây -->
+            </div>
+        </div>
+    </section>
 
     <script src="./javascript/header.js"></script>
     <script src="./javascript/video-preview.js"></script>

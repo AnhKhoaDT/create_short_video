@@ -69,6 +69,22 @@ if (!token) {
     return;
 }
 
+// Kiểm tra tham số URL để scroll tự động
+const urlParams = new URLSearchParams(window.location.search);
+const scrollTo = urlParams.get('scroll');
+if (scrollTo === 'script') {
+    // Scroll xuống phần Script Input Section sau khi trang load xong
+    setTimeout(() => {
+        const scriptSection = document.querySelector('.script-section');
+        if (scriptSection) {
+            scriptSection.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }, 500); // Delay 500ms để đảm bảo trang đã load hoàn toàn
+}
+
 // Load trending topics
 loadTrendingTopics();
 
@@ -99,14 +115,21 @@ sendButton.addEventListener('click', handleSendScript);
 // Xử lý nút tạo video mới
 const createVideoBtn = document.querySelector('.create-video-btn');
 createVideoBtn.addEventListener('click', () => {
-    window.location.href = 'video-manager.html';
+    // Scroll xuống phần Script Input Section
+    const scriptSection = document.querySelector('.script-section');
+    if (scriptSection) {
+        scriptSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
 });
 
 // Xử lý nút xem mẫu
 const browseTemplatesBtn = document.querySelector('.browse-templates-btn');
 browseTemplatesBtn.addEventListener('click', () => {
-    // TODO: Implement template browsing
-    alert('Tính năng đang được phát triển!');
+    // Chuyển đến trang quản lý video
+    window.location.href = 'video-manager.html';
 });
 
 
@@ -185,7 +208,7 @@ const token = localStorage.getItem('token');
 
 try {
     const response = await fetch('http://localhost:8080/create-video-service/trends/suggestions', {
-        method:'POST',
+        method:'GET',
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -244,15 +267,30 @@ card.innerHTML = `
 
 // Thêm sự kiện click cho nút sử dụng
 const useButton = card.querySelector('.use-trend-btn');
-useButton.addEventListener('click', () => useTrend(trend.id));
+useButton.addEventListener('click', () => useTrend(trend.title, trend.description));
 
 return card;
 }
 
 // Xử lý khi người dùng chọn một trend
-function useTrend(trendId) {
-localStorage.setItem('selectedTrendId', trendId);
-window.location.href = 'video-manager.html';
+function useTrend(title, description) {
+    // Scroll xuống phần tạo video
+    const scriptSection = document.querySelector('.script-section');
+    if (scriptSection) {
+        scriptSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    // Điền nội dung vào ô nhập
+    const inputScript = document.getElementById('inputScript');
+    if (inputScript) {
+        inputScript.value = `${title}\n${description}`;
+        // Cập nhật bộ đếm ký tự
+        const charCount = document.getElementById('charCount');
+        if (charCount) {
+            charCount.textContent = `${inputScript.value.length}/3000`;
+        }
+        // Focus vào ô nhập
+        inputScript.focus();
+    }
 }
 
 async function handleSendScript() {
@@ -349,48 +387,138 @@ setTimeout(() => {
 }
 
 function loadHomepageVideos() {
-const videoListContainer = document.getElementById('homepageVideoList');
-// Dữ liệu mẫu, bạn có thể thay bằng API nếu có
-// Thêm url và id cho dữ liệu mẫu để hiển thị video thumbnail và nhận diện video
-const videos = [
-    { id: '1', title: "Video A", views: 1500, description: "Mô tả video A", url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" },
-    { id: '2', title: "Video B", views: 900, description: "Mô tả video B", url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" },
-    { id: '3', title: "Video C", views: 2100, description: "Mô tả video C", url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" }
-];
-
-// Xóa nội dung hiện tại
-videoListContainer.innerHTML = '';
-
-if (videos && videos.length > 0) {
-    videos.forEach(video => {
-        const videoCard = document.createElement('div');
-        // Sử dụng class 'video-card' từ video-manager.css để áp dụng style
-        videoCard.className = 'video-card';
-        // Thêm data-id để dễ dàng thao tác sau này nếu cần
-        videoCard.setAttribute('data-video-id', video.id);
-
-        videoCard.innerHTML = `
-            <video class="video-thumb" src="${video.url}" controls></video>
-            <div class="video-title">${video.title}</div>
-            <div class="video-desc">${video.description}</div>
-            <div class="video-stats">
-                <span class="view-count"><iconify-icon icon="mdi:eye"></iconify-icon> ${video.views} lượt xem</span>
-            </div>
-
-            <!-- Action buttons -->
-            <div class="video-actions-compact flex justify-center gap-2">
-                <button class="edit-btn-compact" data-id="${video.id}"><iconify-icon icon="mdi:pencil"></iconify-icon> Sửa</button>
-                <button class="download-btn-compact" data-id="${video.id}"><iconify-icon icon="mdi:download"></iconify-icon> Tải xuống</button>
-                <button class="delete-btn-compact" data-id="${video.id}"><iconify-icon icon="mdi:delete"></iconify-icon> Xóa</button>
-            </div>
-        `;
-
-        videoListContainer.appendChild(videoCard);
-
-        // TODO: Thêm xử lý sự kiện cho các nút Sửa, Tải xuống, Xóa và nút Thêm vào danh sách yêu thích nếu cần
+    const videoListContainer = document.getElementById('homepageVideoList');
+    
+    fetch('http://localhost:8080/create-video-service/videos', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch videos');
+        return response.json();
+    })
+    .then(videos => {
+        videoListContainer.innerHTML = '';
+        if (videos && videos.length > 0) {
+            videos.forEach(video => {
+                const videoCard = document.createElement('div');
+                videoCard.className = 'video-card';
+                videoCard.setAttribute('data-video-id', video.id);
+                videoCard.setAttribute('data-video-url', video.videoUrl);
+                videoCard.innerHTML = `
+                    <video class="video-thumb" src="${video.videoUrl}" controls></video>
+                    <div class="video-title">${video.title || 'Video ' + video.id}</div>
+                    <div class="video-desc">${video.description || 'Mô tả video'}</div>
+                    <div class="video-stats">
+                        <span class="view-count"><iconify-icon icon="mdi:eye"></iconify-icon> 0 lượt xem</span>
+                    </div>
+                    <div class="video-actions-compact flex justify-center gap-2">
+                        <button class="download-btn-compact" data-id="${video.id}"><iconify-icon icon="mdi:download"></iconify-icon> Tải xuống</button>
+                        <button class="edit-btn-compact" data-id="${video.id}"><iconify-icon icon="mdi:pencil"></iconify-icon> Sửa</button>
+                        <button class="delete-btn-compact" data-id="${video.id}"><iconify-icon icon="mdi:delete"></iconify-icon> Xóa</button>
+                    </div>
+                `;
+                videoListContainer.appendChild(videoCard);
+            });
+        } else {
+            videoListContainer.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <div class="max-w-md mx-auto">
+                        <iconify-icon icon="mdi:video-off" class="text-6xl text-gray-300 mb-4"></iconify-icon>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">Chưa có video nào</h3>
+                        <p class="text-gray-500 mb-6">Bạn chưa tạo video nào. Hãy bắt đầu tạo video đầu tiên của bạn!</p>
+                        <button class="create-video-btn" onclick="window.location.href='./homepage.html?scroll=script'">
+                            <iconify-icon icon="mdi:video-plus" class="mr-2"></iconify-icon>
+                            Tạo video đầu tiên
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error loading videos:', error);
+        videoListContainer.innerHTML = '<p class="text-red-500 text-center py-8">Không thể tải danh sách video.</p>';
     });
-} else {
-    // Hiển thị thông báo nếu không có video yêu thích nào
-    videoListContainer.innerHTML = '<p>Không tìm thấy video yêu thích nào.</p>';
+
+    // Event delegation cho các nút action
+    videoListContainer.onclick = function(e) {
+        const target = e.target.closest('button');
+        if (!target) return;
+        const videoCard = target.closest('.video-card');
+        if (!videoCard) return;
+        const videoId = videoCard.getAttribute('data-video-id');
+        const videoUrl = videoCard.getAttribute('data-video-url');
+        const videoTitle = videoCard.querySelector('.video-title')?.textContent || 'Video';
+        const videoDesc = videoCard.querySelector('.video-desc')?.textContent || '';
+        // Download
+        if (target.classList.contains('download-btn-compact')) {
+            e.preventDefault();
+            const link = document.createElement('a');
+            link.href = videoUrl;
+            link.download = `${videoTitle}.mp4`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        // Edit
+        if (target.classList.contains('edit-btn-compact')) {
+            e.preventDefault();
+            sessionStorage.setItem('currentVideo', JSON.stringify({
+                id: videoId,
+                url: videoUrl,
+                title: videoTitle,
+                description: videoDesc
+            }));
+            alert('Chức năng chỉnh sửa video đang được phát triển!');
+        }
+        // Delete
+        if (target.classList.contains('delete-btn-compact')) {
+            e.preventDefault();
+            if (confirm(`Bạn có chắc muốn xóa video "${videoTitle}"?`)) {
+                deleteVideo(videoId, videoCard);
+            }
+        }
+    };
+    // Click vào card để xem preview
+    videoListContainer.addEventListener('click', function(e) {
+        const card = e.target.closest('.video-card');
+        if (!card) return;
+        if (e.target.closest('button')) return;
+        const videoId = card.getAttribute('data-video-id');
+        const videoUrl = card.getAttribute('data-video-url');
+        const videoTitle = card.querySelector('.video-title')?.textContent || '';
+        const videoDesc = card.querySelector('.video-desc')?.textContent || '';
+        sessionStorage.setItem('currentVideo', JSON.stringify({
+            id: videoId,
+            url: videoUrl,
+            title: videoTitle,
+            description: videoDesc
+        }));
+        window.location.href = 'video-preview.html';
+    });
 }
+
+// Hàm xóa video
+async function deleteVideo(videoId, videoCard) {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`http://localhost:8080/create-video-service/videos/${videoId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (response.ok) {
+            videoCard.remove();
+            alert('Đã xóa video thành công!');
+        } else {
+            throw new Error('Failed to delete video');
+        }
+    } catch (error) {
+        console.error('Error deleting video:', error);
+        alert('Không thể xóa video. Vui lòng thử lại sau.');
+    }
 } 
