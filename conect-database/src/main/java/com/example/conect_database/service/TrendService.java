@@ -156,8 +156,30 @@ public class TrendService {
         return trendRepository.findByIndustry(industry);
     }
 
-   
+    // Lấy trending topic từ Wikipedia
+    public List<Map<String, String>> getTrendsFromWikipedia(String keyword) {
+        List<Map<String, String>> trends = new ArrayList<>();
+        try {
+            // Gọi API tìm kiếm của Wikipedia
+            String url = "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch="
+                        + keyword + "&format=json";
+            String response = restTemplate.getForObject(url, String.class);
+            JsonNode root = objectMapper.readTree(response);
+            JsonNode searchResults = root.path("query").path("search");
 
+            for (JsonNode item : searchResults) {
+                String title = item.path("title").asText();
+                String snippet = item.path("snippet").asText().replaceAll("<.*?>", ""); // bỏ tag HTML
+                Map<String, String> trend = new HashMap<>();
+                trend.put("title", title);
+                trend.put("description", snippet);
+                trends.add(trend);
+            }
+        } catch (Exception e) {
+            log.error("Wikipedia API error: {}", e.getMessage());
+        }
+        return trends;
+    }
 
     public void deleteTrend(String id) {
         trendRepository.deleteById(id);

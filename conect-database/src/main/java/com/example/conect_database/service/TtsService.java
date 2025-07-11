@@ -27,8 +27,8 @@ public class TtsService {
     private static final String OUTPUT_DIR = "output";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final long POLLING_INTERVAL_MS = 2000; // 2 seconds
-    private static final int MAX_POLLING_ATTEMPTS = 30; // Max 60 seconds wait
+    private static final long POLLING_INTERVAL_MS = 3000; // 3 seconds
+    private static final int MAX_POLLING_ATTEMPTS = 40; // Max 120 seconds wait
 
     @Autowired
     private CloudinaryService cloudinaryService;
@@ -38,6 +38,50 @@ public class TtsService {
         Files.createDirectories(Path.of(OUTPUT_DIR));
         // Loại bỏ dấu " trong text
         text = text.replace("\"", "");
+        
+        // Thử với text gốc trước
+        try {
+            return trySynthesizeSpeech(text, voice);
+        } catch (IOException e) {
+            System.err.println("Lỗi với text gốc: " + e.getMessage());
+            
+            // Nếu text quá dài (>500 ký tự), thử với text ngắn hơn
+            if (text.length() > 500) {
+                System.out.println("Text quá dài, thử với text ngắn hơn...");
+                String shortText = text.substring(0, Math.min(500, text.length()));
+                try {
+                    return trySynthesizeSpeech(shortText, voice);
+                } catch (IOException e2) {
+                    System.err.println("Lỗi với text ngắn: " + e2.getMessage());
+                    // Fallback: sử dụng sample audio
+                    return getFallbackAudioUrl(voice);
+                }
+            } else {
+                // Fallback: sử dụng sample audio
+                return getFallbackAudioUrl(voice);
+            }
+        }
+    }
+    
+    private String getFallbackAudioUrl(String voice) {
+        // Upload sample audio file lên Cloudinary và trả về URL
+        try {
+            Path samplePath = Path.of("src/main/resources/static/sample-voices/" + voice + ".mp3");
+            if (Files.exists(samplePath)) {
+                byte[] audioBytes = Files.readAllBytes(samplePath);
+                String cloudUrl = cloudinaryService.uploadAudio(audioBytes, "tts-fallback/");
+                System.out.println("Sử dụng fallback audio cho voice: " + voice);
+                return cloudUrl;
+            } else {
+                throw new IOException("Không tìm thấy sample audio cho voice: " + voice);
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tạo fallback audio: " + e.getMessage());
+            throw new RuntimeException("Không thể tạo audio", e);
+        }
+    }
+    
+    private String trySynthesizeSpeech(String text, String voice) throws IOException, InterruptedException {
         // Prepare headers
         HttpHeaders headers = new HttpHeaders();
         headers.set("api-key", apiKey);
@@ -82,7 +126,8 @@ public class TtsService {
                 if (jsonResponse.has("async")) {
                     String asyncUrl = jsonResponse.get("async").asText();
                     System.out.println("URL bất đồng bộ: " + asyncUrl);
-                    System.out.println("⏳ Đang chờ FPT.AI hoàn thành xử lý giọng nói (polling)...");
+                    System.out.println("⏳ Đang chờ FPT.AI hoàn thành xử lý giọng nói (chờ 5 giây trước khi polling)...");
+                    Thread.sleep(5000); // Chờ 5 giây trước khi bắt đầu polling
                     for (int i = 0; i < MAX_POLLING_ATTEMPTS; i++) {
                         Thread.sleep(POLLING_INTERVAL_MS);
                         System.out.println("Đang polling FPT.AI (lần " + (i + 1) + "/" + MAX_POLLING_ATTEMPTS + ")...");
@@ -112,6 +157,8 @@ public class TtsService {
                             System.err.println("Lỗi HTTP client trong khi polling (lần " + (i + 1) + "): " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
                             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                                 System.out.println("URL polling chưa sẵn sàng (404), tiếp tục thử lại...");
+                                // Thêm delay lâu hơn cho 404
+                                Thread.sleep(5000); // 5 giây thay vì 3 giây
                             } else {
                                 throw new IOException("Lỗi từ FPT.AI API (polling): " + e.getResponseBodyAsString(), e);
                             }
@@ -144,5 +191,19 @@ public class TtsService {
         return cloudUrl;
     }
 
-   
+    // Method để tải file từ URL về dưới dạng byte array
+    public static byte[] downloadFile(String url) throws IOException {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<byte[]> response = restTemplate.getForEntity(url, byte[].class);
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return response.getBody();
+            } else {
+                throw new IOException("Failed to download file from URL: " + url + ", status: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            throw new IOException("Error downloading file from URL: " + url, e);
+        }
+    }
+
 }

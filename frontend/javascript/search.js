@@ -29,7 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const suggestion = e.target.closest('.suggestion-item');
         if (suggestion) {
             const searchText = suggestion.dataset.text;
-            inputScript.value = searchText;
+            const description = suggestion.dataset.description || '';
+            // Nếu có mô tả, điền cả title và mô tả vào input, mỗi dòng một phần
+            if (description) {
+                inputScript.value = `${searchText}\n${description}`;
+            } else {
+                inputScript.value = searchText;
+            }
             addToHistory(searchText);
             searchSuggestions.classList.add('hidden');
             performSearch(searchText); // Call perform search with the selected suggestion
@@ -67,44 +73,39 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
 
-        // Hiển thị xu hướng tìm kiếm từ API
+        // Hiển thị gợi ý từ Wikipedia
         try {
-            // Get the token from localStorage
             const token = localStorage.getItem('token');
             if (!token) {
-                console.error('Authentication token not found.');
-                // Optionally display a message to the user
-                 suggestionsHTML += `<div class="p-2 text-red-500">Vui lòng đăng nhập để xem gợi ý.</div>`;
-                 searchSuggestions.innerHTML = suggestionsHTML;
-                 searchSuggestions.classList.remove('hidden');
-                return; // Stop if token is not available
+                suggestionsHTML += `<div class="p-2 text-red-500">Vui lòng đăng nhập để xem gợi ý.</div>`;
+                searchSuggestions.innerHTML = suggestionsHTML;
+                searchSuggestions.classList.remove('hidden');
+                return;
             }
 
-            // Call the backend API with Authorization header
-            const response = await fetch(`http://localhost:8080/create-video-service/suggest?q=${encodeURIComponent(query)}`, {
+            const response = await fetch(`http://localhost:8080/create-video-service/trends/wikipedia?keyword=${encodeURIComponent(query)}`, {
                 headers: {
-                    'Authorization': `Bearer ${token}` // Add the Authorization header
+                    'Authorization': `Bearer ${token}`
                 }
             });
 
             if (!response.ok) {
-                 console.error('Failed to fetch suggestions from API:', response.statusText);
-                 // Optionally display an error message in the suggestions dropdown
-                 // suggestionsHTML += `<div class="p-2 text-red-500">Không thể tải gợi ý.</div>`;
+                console.error('Failed to fetch suggestions from Wikipedia API:', response.statusText);
             } else {
-                const apiSuggestions = await response.json(); // API is expected to return a list of strings
-
-                if (apiSuggestions && apiSuggestions.length > 0) {
-                     suggestionsHTML += `
+                const wikiSuggestions = await response.json(); // [{title, description}]
+                if (wikiSuggestions && wikiSuggestions.length > 0) {
+                    suggestionsHTML += `
                         <div>
-                            <h3 class="px-2 py-1 text-sm font-medium text-gray-500">Xu hướng tìm kiếm</h3>
-                             <div id="trendingSearches" class="space-y-1">
-                            ${apiSuggestions.map(item => `
-                                <div class="suggestion-item px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between" data-text="${item}">
+                            <h3 class="px-2 py-1 text-sm font-medium text-gray-500">Gợi ý từ Wikipedia</h3>
+                            <div id="trendingSearches" class="space-y-1">
+                            ${wikiSuggestions.map(item => `
+                                <div class="suggestion-item px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between" data-text="${item.title}" data-description="${item.description || ''}">
                                     <div class="flex items-center">
                                         <iconify-icon icon="mdi:trending-up" class="text-blue-500 mr-2"></iconify-icon>
-                                        <span>${item}</span>
+                                        <span>${item.title}</span>
+                                        <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(item.title.replace(/ /g, '_'))}" target="_blank" class="ml-2 text-blue-500 underline text-xs" onclick="event.stopPropagation();">Xem</a>
                                     </div>
+                                    <span class="text-xs text-gray-400 ml-2">${item.description || ''}</span>
                                 </div>
                             `).join('')}
                             </div>
@@ -112,20 +113,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 }
             }
-
         } catch (error) {
-            console.error('Error calling suggest API:', error);
-             // Optionally display an error message in the suggestions dropdown
-            // suggestionsHTML += `<div class="p-2 text-red-500">Đã xảy ra lỗi khi lấy gợi ý.</div>`;
+            console.error('Error calling Wikipedia suggest API:', error);
         }
 
-
         searchSuggestions.innerHTML = suggestionsHTML;
-         if (suggestionsHTML.trim().length > 0) {
-             searchSuggestions.classList.remove('hidden');
-         } else {
-             searchSuggestions.classList.add('hidden');
-         }
+        if (suggestionsHTML.trim().length > 0) {
+            searchSuggestions.classList.remove('hidden');
+        } else {
+            searchSuggestions.classList.add('hidden');
+        }
     }
 
     // Hiển thị gợi ý mặc định (chỉ lịch sử tìm kiếm)

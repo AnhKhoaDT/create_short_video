@@ -26,7 +26,7 @@ fpt:
     api-key: "NSE8CyLx74lpILOf3FrCIGx9MuRrmfdQ"
 
 image:
-  api-key: "sk-HmInFmdtQymsgtustu51j7UqgywROu1EG0aweUiY6gjADkuI"
+  api-key: "sk-0rN9f1fv5VsXPfTKOipMEq2l9Hi9Hd25Ji0NtPxJ9c9Z2jXl"
 stable:
   diffusion:
     api-url: "https://api.stability.ai/v2beta/stable-image/generate/core"

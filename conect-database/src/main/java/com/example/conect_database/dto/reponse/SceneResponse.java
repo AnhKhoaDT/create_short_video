@@ -13,4 +13,5 @@ public class SceneResponse {
     int sceneNumber;
     String description;
     String imagePrompt;
+    String audioUrl;
 }

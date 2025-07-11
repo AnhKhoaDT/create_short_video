@@ -201,7 +201,7 @@ actionBtns.forEach(btn => {
 loadHomepageVideos();
 });
 
-// Load trending topics từ API
+// Load trending topics từ Wikipedia API
 async function loadTrendingTopics() {
 const trendingContainer = document.getElementById('trendingTopics');
 const token = localStorage.getItem('token');

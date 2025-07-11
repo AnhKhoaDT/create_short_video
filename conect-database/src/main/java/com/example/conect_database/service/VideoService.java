@@ -36,7 +36,7 @@ public class VideoService {
                     return new RuntimeException("Script not found");
                 });
 
-        String audioUrl = script.getAudioUrl();
+        // String audioUrl = script.getAudioUrl(); // Đã bỏ trường này, nếu cần hãy lấy từ scene
         List<Scene> scenes = script.getScenes();
         List<String> imageUrls = scenes.stream()
                 .map(Scene::getImageUrl)
@@ -53,129 +53,93 @@ public class VideoService {
         Path tempDir = Files.createTempDirectory("video-gen");
 
         
-        // Tải ảnh từng cảnh
-        for (int i = 0; i < imageUrls.size(); i++) {
-            downloadFileWithTimeout(imageUrls.get(i), tempDir.resolve(String.format("img%03d.jpg", i)));
+        // Tải ảnh và audio từng cảnh
+        List<Path> imagePaths = new ArrayList<>();
+        List<Path> audioPaths = new ArrayList<>();
+        for (int i = 0; i < scenes.size(); i++) {
+            // Tải ảnh
+            Path imgPath = tempDir.resolve(String.format("img%03d.jpg", i));
+            downloadFileWithTimeout(scenes.get(i).getImageUrl(), imgPath);
+            imagePaths.add(imgPath);
+            // Tải audio
+            Path audPath = tempDir.resolve(String.format("audio%03d.mp3", i));
+            downloadFileWithTimeout(scenes.get(i).getAudioUrl(), audPath);
+            audioPaths.add(audPath);
         }
 
-        // 4. Tải audio về
-        Path audioPath = tempDir.resolve("audio.mp3");
-        downloadFileWithTimeout(audioUrl, audioPath);
-
-        Path whisperScriptPath = copyWhisperScriptToTemp();
-        // Gọi script Python whisper_split.py để sinh scene_timestamps.json
-        try {
-            ProcessBuilder whisperPb = new ProcessBuilder(
-                "/home/khoa123/conect-database/venv310/bin/python", whisperScriptPath.toString(), audioPath.toString()
-            );
-            whisperPb.directory(tempDir.toFile());
-            whisperPb.redirectErrorStream(true);
-            Process whisperProcess = whisperPb.start();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(whisperProcess.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    logger.info("whisper: {}", line);
-                }
-            }
-            int exitCode = whisperProcess.waitFor();
-            if (exitCode != 0) {
-                logger.warn("Whisper script failed with exit code: {}", exitCode);
-            }
-        } catch (Exception e) {
-            logger.warn("Không thể chạy whisper_split.py: {}", e.getMessage());
-        }
-
-        // Đọc timestamp từ file JSON nếu có
-        List<Double> sceneTimestamps = new ArrayList<>();
-        Path whisperJsonPath = tempDir.resolve("scene_timestamps.json");
-        if (Files.exists(whisperJsonPath)) {
-            try (BufferedReader br = Files.newBufferedReader(whisperJsonPath)) {
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) sb.append(line);
-                String json = sb.toString();
-                json = json.replaceAll("\\[|\\]", "");
-                if (!json.trim().isEmpty()) {
-                    for (String s : json.split(",")) {
-                        sceneTimestamps.add(Double.parseDouble(s.trim()));
-                    }
-                }
-            } catch (Exception e) {
-                logger.warn("Không đọc được scene_timestamps.json, sẽ chia đều duration: {}", e.getMessage());
-            }
-        }
-
-        // Lấy tổng thời lượng audio
-        double audioDuration = getAudioDurationInSeconds(audioPath); // dùng ffprobe
-        int sceneCount = imageUrls.size();
-        List<Double> durations = new ArrayList<>();
-        if (sceneTimestamps.size() > 0) {
-            // Tính duration từng scene dựa vào timestamp
-            for (int i = 0; i < sceneCount; i++) {
-                double start = (i == 0) ? 0 : sceneTimestamps.get(i - 1);
-                double end = (i < sceneTimestamps.size()) ? sceneTimestamps.get(i) : audioDuration;
-                durations.add(end - start);
-            }
-        } else {
-            // Fallback: chia đều
-            double durationPerScene = audioDuration / sceneCount;
-            for (int i = 0; i < sceneCount; i++) durations.add(durationPerScene);
-        }
-
-        // Tạo file images.txt cho ffmpeg slideshow
-        Path listFile = tempDir.resolve("images.txt");
-        try (BufferedWriter writer = Files.newBufferedWriter(listFile)) {
-            for (int i = 0; i < sceneCount; i++) {
-                writer.write("file 'img" + String.format("%03d", i) + ".jpg'\n");
-                writer.write("duration " + durations.get(i) + "\n");
-            }
-            // Ghi lặp lại ảnh cuối (ffmpeg yêu cầu để hiển thị đúng)
-            writer.write("file 'img" + String.format("%03d", sceneCount - 1) + ".jpg'\n");
-        }
-
-        // 5. Tạo video từ ảnh + audio
-        Path videoPath = tempDir.resolve("output.mp4");
-        ProcessBuilder pb = new ProcessBuilder(
+        // Tạo video cho từng scene (ảnh + audio)
+        List<Path> sceneVideoPaths = new ArrayList<>();
+        for (int i = 0; i < scenes.size(); i++) {
+            Path sceneVideo = tempDir.resolve(String.format("scene%03d.mp4", i));
+            ProcessBuilder pb = new ProcessBuilder(
                 "ffmpeg",
-                "-f", "concat",
-                "-safe", "0",
-                "-i", listFile.toString(),
-                "-i", audioPath.toString(),
-                "-c:v", "libx264",        // Tuỳ chọn GPU preset (có thể dùng: default, fast, slow, p1-p7)
+                "-loop", "1",
+                "-i", imagePaths.get(i).toString(),
+                "-i", audioPaths.get(i).toString(),
+                "-c:v", "libx264",
                 "-c:a", "aac",
                 "-shortest",
                 "-pix_fmt", "yuv420p",
-                "-y", videoPath.toString()
-        );
-        pb.directory(tempDir.toFile());
-        pb.redirectErrorStream(true);
+                "-tune", "stillimage",
+                "-y", sceneVideo.toString()
+            );
+            pb.directory(tempDir.toFile());
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    logger.info("ffmpeg scene {}: {}", i, line);
+                }
+            }
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new RuntimeException("ffmpeg scene " + i + " failed with exit code: " + exitCode);
+            }
+            sceneVideoPaths.add(sceneVideo);
+        }
 
-        Process process = pb.start();
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                logger.info("ffmpeg: {}", line);
+        // Ghép các video cảnh lại thành video cuối cùng
+        Path concatList = tempDir.resolve("concat.txt");
+        try (BufferedWriter writer = Files.newBufferedWriter(concatList)) {
+            for (Path p : sceneVideoPaths) {
+                writer.write("file '" + p.toString() + "'\n");
             }
         }
-
-        int exitCode = process.waitFor();
-        if (exitCode != 0) {
-            throw new RuntimeException("ffmpeg failed with exit code: " + exitCode);
+        Path videoPath = tempDir.resolve("output.mp4");
+        ProcessBuilder concatPb = new ProcessBuilder(
+            "ffmpeg",
+            "-f", "concat",
+            "-safe", "0",
+            "-i", concatList.toString(),
+            "-c", "copy",
+            "-y", videoPath.toString()
+        );
+        concatPb.directory(tempDir.toFile());
+        concatPb.redirectErrorStream(true);
+        Process concatProcess = concatPb.start();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(concatProcess.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                logger.info("ffmpeg concat: {}", line);
+            }
+        }
+        int concatExit = concatProcess.waitFor();
+        if (concatExit != 0) {
+            throw new RuntimeException("ffmpeg concat failed with exit code: " + concatExit);
         }
 
-
-     //upload
+        // Upload video lên cloud
         String videoUrl = cloudinaryService.uploadVideo(Files.readAllBytes(videoPath), "video/");
 
-        // 6. Lưu video vào database
+        // Lưu video vào database
         Video video = Video.builder()
                 .script(script)
                 .videoUrl(videoUrl)
                 .build();
         videoRepository.save(video);
 
-        // 7. Dọn thư mục tạm
+        // Dọn thư mục tạm
         cleanupTempDirectory(tempDir);
 
         return video;

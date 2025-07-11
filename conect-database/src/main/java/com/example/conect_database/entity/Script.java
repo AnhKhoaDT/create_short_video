@@ -29,8 +29,6 @@ public class Script {
     @Column(columnDefinition = "TEXT") // Thể loại (hành động, giải trí, ...)
     String aiModel;         // Mô hình AI sử dụng
 
-    @Column(columnDefinition = "TEXT") // Thêm trường audioUrl
-    String audioUrl;        // Đường dẫn audio
 
     LocalDateTime createdAt;
 

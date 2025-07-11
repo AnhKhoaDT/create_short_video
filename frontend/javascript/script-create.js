@@ -82,22 +82,10 @@ document.addEventListener('DOMContentLoaded', () => {
             scriptContentInput.setAttribute('readonly', true);
             regenerateBtn.innerHTML = `<iconify-icon icon="mdi:refresh" class="mr-1"></iconify-icon>Chỉnh sửa kịch bản`;
             
-            // Lưu lại nội dung mới vào localStorage
-            localStorage.setItem('createdScriptContent', JSON.stringify({
-                content: scriptContentInput.value
-            }));
-
-            // Xóa tất cả audio cache cũ
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('audio_')) {
-                    localStorage.removeItem(key);
-                }
-            });
-
-            // Nếu có giọng đã chọn, fetch lại audio mới
-            if (selectedVoice) {
-                fetchAndCacheAudio(selectedVoice);
-            }
+            // Lưu lại nội dung mới vào localStorage nhưng giữ nguyên cấu trúc scenes
+            const currentScriptData = JSON.parse(localStorage.getItem('createdScriptContent') || '{}');
+            currentScriptData.content = scriptContentInput.value;
+            localStorage.setItem('createdScriptContent', JSON.stringify(currentScriptData));
         }
     });
 
@@ -105,12 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkTokenExpiration() {
         const token = localStorage.getItem('token');
         if (!token) {
-            // Xóa tất cả cache khi không có token
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('audio_')) {
-                    localStorage.removeItem(key);
-                }
-            });
             localStorage.removeItem('selectedVoice');
             return;
         }
@@ -121,23 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const expirationTime = payload.exp * 1000; // Chuyển sang milliseconds
 
             if (Date.now() >= expirationTime) {
-                // Token đã hết hạn, xóa cache
-                Object.keys(localStorage).forEach(key => {
-                    if (key.startsWith('audio_')) {
-                        localStorage.removeItem(key);
-                    }
-                });
                 localStorage.removeItem('selectedVoice');
                 localStorage.removeItem('token');
             }
         } catch (error) {
             console.error('Lỗi khi kiểm tra token:', error);
-            // Nếu có lỗi khi giải mã token, xóa cache để đảm bảo an toàn
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('audio_')) {
-                    localStorage.removeItem(key);
-                }
-            });
             localStorage.removeItem('selectedVoice');
             localStorage.removeItem('token');
         }
@@ -149,92 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Kiểm tra token mỗi phút
     setInterval(checkTokenExpiration, 60000);
 
-    function extractTextForTTS(rawContent) {
-        const lines = rawContent.split('\n');
-        const result = [];
-    
-        for (let line of lines) {
-            line = line.trim();
-    
-            if (
-                line.startsWith('Tiêu đề:') ||
-                /^Cảnh \d+:/.test(line) ||
-                line.startsWith('Mô tả:')
-            ) {
-                // Nếu là dòng tiêu đề/cảnh/mô tả thì lấy phần sau dấu ":"
-                const colonIndex = line.indexOf(':');
-                if (colonIndex !== -1) {
-                    const cleaned = line.slice(colonIndex + 1).trim();
-                    if (cleaned) result.push(cleaned);
-                }
-            }
-    
-            // Bỏ qua dòng Gợi ý hình ảnh
-            if (line.startsWith('Gợi ý hình ảnh:')) {
-                continue;
-            }
-        }
-    
-        return result.join(' ');
-    }
-    
-
-    // Hàm fetch và cache audio
-    async function fetchAndCacheAudio(voiceId) {
-        const rawScript = scriptContentInput.value.trim();
-        if (!rawScript) return;
-    
-        // Xử lý loại bỏ các dòng không cần TTS
-        const cleanText = extractTextForTTS(rawScript);
-        const cacheKey = `audio_${voiceId}_${cleanText}`;
-        
-        // Nếu đã có trong cache thì không cần fetch lại
-        if (localStorage.getItem(cacheKey)) {
-            console.log('Audio đã có trong cache');
-            return;
-        }
-
-        loadingOverlay.classList.remove('hidden');
-
-        try {
-            const response = await fetch('http://localhost:8080/create-video-service/tts/synthesize', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({
-                    text: cleanText,
-                    voice: voiceId
-                })
-            });
-
-            if (response.status === 401 || response.status === 403) {
-                // Token hết hạn hoặc không hợp lệ
-                checkTokenExpiration();
-                return;
-            }
-
-            if (response.ok) {
-                const cloudUrl = await response.text();
-                if (cloudUrl && cloudUrl.startsWith('http')) {
-                    localStorage.setItem(cacheKey, cloudUrl);
-                    console.log('Đã lưu link audio vào cache');
-                }
-            }
-        } catch (error) {
-            console.error('Lỗi khi gọi API TTS:', error);
-            if (error.message.includes('401') || error.message.includes('403')) {
-                checkTokenExpiration();
-            }
-        } finally {
-            loadingOverlay.classList.add('hidden');
-        }
-    }
-
     // Render voice options
     function renderVoiceOptions() {
-        voiceGrid.innerHTML = ''; // Clear loading spinner
+        voiceGrid.innerHTML = '';
         FPT_AI_VOICES.forEach(voice => {
             const voiceCard = document.createElement('div');
             voiceCard.classList.add('voice-card', 'p-4', 'border', 'border-gray-200', 'rounded-lg', 'text-center', 'cursor-pointer', 'hover:border-blue-500', 'transition-colors');
@@ -243,13 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <iconify-icon icon="mdi:account-voice" class="text-4xl text-gray-600 mb-2"></iconify-icon>
                 <p class="font-semibold text-gray-800">${voice.name}</p>
             `;
-
-            // Highlight card nếu là giọng đã chọn
             if (voice.id === selectedVoice) {
                 voiceCard.classList.add('border-blue-600', 'bg-blue-50');
             }
-
-            // Add click handler for voice selection
             voiceCard.addEventListener('click', () => {
                 const currentActive = voiceGrid.querySelector('.voice-card.border-blue-600');
                 if (currentActive) {
@@ -257,41 +140,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 voiceCard.classList.add('border-blue-600', 'bg-blue-50');
                 selectedVoice = voice.id;
-                
-                // Lưu giọng đã chọn vào localStorage
                 localStorage.setItem('selectedVoice', voice.id);
-                
-                // Chỉ gọi API và lưu cache khi chọn giọng
-                fetchAndCacheAudio(voice.id);
             });
-
             voiceGrid.appendChild(voiceCard);
         });
     }
 
-    // Hàm phát audio từ cache
-    function playAudioFromCache(voiceId) {
-        if (!scriptContentInput.value.trim()) {
-            alert('Vui lòng nhập nội dung kịch bản để nghe thử.');
-            return;
-        }
-
-            // Sử dụng extractTextForTTS để tạo key giống như khi cache
-        const cleanText = extractTextForTTS(scriptContentInput.value);
-        const cacheKey = `audio_${voiceId}_${cleanText}`;
-        const cachedAudio = localStorage.getItem(cacheKey);
-        
-        if (cachedAudio) {
-            const audio = new Audio(cachedAudio);
+    // Hàm phát audio mẫu từ backend (thêm token vào request)
+    function playSampleAudioFromBackend(voiceId) {
+        const token = localStorage.getItem('token');
+        const audioUrl = `http://localhost:8080/create-video-service/sample-voices/${voiceId}.mp3`;
+        fetch(audioUrl, {
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : ''
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Không thể lấy file audio mẫu');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const audio = new Audio(URL.createObjectURL(blob));
             audio.play().then(() => {
-                console.log('Audio playback started successfully from cache.');
+                console.log('Audio mẫu playback started successfully from backend.');
             }).catch(playError => {
-                console.error('Lỗi khi phát âm thanh từ cache:', playError);
-                alert('Không thể phát âm thanh. Vui lòng thử lại.');
+                console.error('Lỗi khi phát audio mẫu:', playError);
+                alert('Không thể phát audio mẫu. Vui lòng thử lại.');
             });
-        } else {
-            alert('Chưa có audio trong cache. Vui lòng chọn giọng đọc trước.');
-        }
+        })
+        .catch(playError => {
+            console.error('Lỗi khi phát audio mẫu:', playError);
+            alert('Không thể phát audio mẫu. Vui lòng thử lại.');
+        });
     }
 
     renderVoiceOptions();
@@ -304,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Vui lòng chọn một giọng đọc AI.');
                 return;
             }
-            playAudioFromCache(selectedVoice);
+            playSampleAudioFromBackend(selectedVoice);
         });
     }
 
@@ -314,38 +196,93 @@ document.addEventListener('DOMContentLoaded', () => {
         continueBtn.addEventListener('click', async (event) => {
             event.preventDefault();
             const selectedVoice = localStorage.getItem('selectedVoice');
-            const rawScript = scriptContentInput.value.trim();
-            const cleanText = extractTextForTTS(rawScript);
-            const cacheKey = `audio_${selectedVoice}_${cleanText}`;
-            const audioUrl = localStorage.getItem(cacheKey);
-            const scriptData = JSON.parse(localStorage.getItem('createdScriptContent')); // Lưu toàn bộ json của kịch bản
-            const scriptId = scriptData ? scriptData.id : null;
-
-            if (!audioUrl) {
-                alert('Vui lòng chọn giọng đọc và tạo audio trước khi tiếp tục!');
+            const scriptDataRaw = localStorage.getItem('createdScriptContent');
+            let scriptData;
+            try {
+                scriptData = JSON.parse(scriptDataRaw);
+            } catch (e) {
+                alert('Không tìm thấy dữ liệu kịch bản hợp lệ!');
                 return;
             }
+            const scriptId = scriptData ? scriptData.id : null;
             if (!scriptId) {
                 alert('Không tìm thấy scriptId. Vui lòng tạo kịch bản trước!');
                 return;
             }
-
-            // Gửi lên backend
-            try {
-                const token = localStorage.getItem('token');
-                await fetch(`http://localhost:8080/create-video-service/scripts/${scriptId}/audio-url`, {
-                    method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ audioUrl })
-                });
-            } catch (err) {
-                alert('Lỗi khi cập nhật audio cho kịch bản!');
+            if (!scriptData.scenes || !Array.isArray(scriptData.scenes) || scriptData.scenes.length === 0) {
+                alert('Kịch bản không có scene nào!');
                 return;
             }
-
+            loadingOverlay.classList.remove('hidden');
+            // Gọi API tạo audio cho từng scene
+            for (let i = 0; i < scriptData.scenes.length; i++) {
+                const scene = scriptData.scenes[i];
+                if (!scene.description) continue;
+                try {
+                    const response = await fetch('http://localhost:8080/create-video-service/tts/synthesize', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({
+                            text: scene.description,
+                            voice: selectedVoice
+                        })
+                    });
+                    if (response.ok) {
+                        const audioUrl = await response.text();
+                        if (audioUrl && audioUrl.startsWith('http')) {
+                            scene.audioUrl = audioUrl;
+                        }
+                    } else {
+                        console.error('Tạo audio cho scene thất bại:', await response.text());
+                    }
+                } catch (err) {
+                    console.error('Lỗi khi tạo audio cho scene:', err);
+                }
+            }
+            // Gửi audio URLs cho từng scene
+            try {
+                const token = localStorage.getItem('token');
+                console.log('Script data for audio update:', scriptData);
+                
+                const audioUpdateRequests = scriptData.scenes
+                    .filter(scene => scene.audioUrl && scene.id)
+                    .map(scene => ({
+                        sceneId: scene.id,
+                        audioUrl: scene.audioUrl
+                    }));
+                
+                console.log('Audio update requests:', audioUpdateRequests);
+                
+                if (audioUpdateRequests.length > 0) {
+                    const response = await fetch('http://localhost:8080/create-video-service/scripts/scenes/audio', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(audioUpdateRequests)
+                    });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('Server error:', errorText);
+                        throw new Error(`Server error: ${response.status} - ${errorText}`);
+                    }
+                    
+                    console.log('Audio update successful');
+                } else {
+                    console.log('No audio URLs to update');
+                }
+            } catch (err) {
+                console.error('Lỗi khi cập nhật audio cho các scene:', err);
+                alert('Lỗi khi cập nhật audio cho các scene: ' + err.message);
+                loadingOverlay.classList.add('hidden');
+                return;
+            }
+            loadingOverlay.classList.add('hidden');
             // Chuyển sang bước tiếp theo...
             window.location.href = 'image-create-from-script.html';
         });

@@ -25,6 +25,9 @@ public class Scene {
     @Column(columnDefinition = "TEXT")
     private String imageUrl; // Link ảnh cho từng cảnh
 
+    @Column(columnDefinition = "TEXT") // Thêm trường audioUrl
+    private String audioUrl;        // Đường dẫn audio
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "script_id", nullable = false)
     private Script script; // Id của kịch bản (liên kết với Script)

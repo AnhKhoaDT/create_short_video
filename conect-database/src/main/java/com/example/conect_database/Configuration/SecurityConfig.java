@@ -54,7 +54,8 @@ public class SecurityConfig {
         "/images/delete-by-url",
         "/videos/generate",
         "/videos",
-        "/videos/{id}"
+        "/videos/{id}",
+        "/wikipedia"
     };
 
     @Autowired

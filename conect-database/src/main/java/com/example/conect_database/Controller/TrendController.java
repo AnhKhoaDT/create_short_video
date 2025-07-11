@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/trends")
@@ -25,7 +26,10 @@ public class TrendController {
         return trendService.getTrendsByIndustry(industry);
     }
 
-  
+    @GetMapping("/wikipedia")
+    public List<Map<String, String>> getTrendsFromWikipedia(@RequestParam String keyword) {
+        return trendService.getTrendsFromWikipedia(keyword);
+    }
 
     @DeleteMapping("/{id}")
     public void deleteTrend(@PathVariable String id) {

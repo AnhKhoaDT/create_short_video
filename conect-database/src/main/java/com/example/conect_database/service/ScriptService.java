@@ -17,6 +17,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.example.conect_database.dto.request.SceneImangeUpdataRequest;
+import com.example.conect_database.dto.request.SceneAudioUpdateRequest;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -193,6 +194,7 @@ public class ScriptService {
                         .sceneNumber(scene.getSceneNumber())
                         .description(scene.getDescription())
                         .imagePrompt(scene.getImagePrompt())
+                        .audioUrl(scene.getAudioUrl())
                         .build())
                 .collect(Collectors.toList());
 
@@ -206,12 +208,7 @@ public class ScriptService {
                 .build();
     }
 
-    public Script updateAudioUrl(Long scriptId, String audioUrl) {
-        Script script = scriptRepository.findById(scriptId)
-            .orElseThrow(() -> new RuntimeException("Script not found"));
-        script.setAudioUrl(audioUrl);
-        return scriptRepository.save(script);
-    }
+   
 
     public void updateSceneImageUrl(Long sceneId, String imageUrl) {
         Scene scene = sceneRepository.findById(sceneId)
@@ -220,9 +217,22 @@ public class ScriptService {
         sceneRepository.save(scene);
     }
 
+    public void updateSceneAudioUrl(Long sceneId, String audioUrl) {
+        Scene scene = sceneRepository.findById(sceneId)
+                .orElseThrow(() -> new RuntimeException("Scene not found with id: " + sceneId));
+        scene.setAudioUrl(audioUrl);
+        sceneRepository.save(scene);
+    }
+
     public void updateMultipleSceneImageUrls(List<SceneImangeUpdataRequest> requests) {
         for (SceneImangeUpdataRequest req : requests) {
             updateSceneImageUrl(req.getSceneId(), req.getImageUrl());
+        }
+    }
+
+    public void updateMultipleSceneAudioUrls(List<SceneAudioUpdateRequest> requests) {
+        for (SceneAudioUpdateRequest req : requests) {
+            updateSceneAudioUrl(req.getSceneId(), req.getAudioUrl());
         }
     }
 }
