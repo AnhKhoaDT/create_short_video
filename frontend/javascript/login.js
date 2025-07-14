@@ -61,4 +61,40 @@ document.addEventListener('DOMContentLoaded', function() {
             alert(error.message || 'An error occurred during login');
         }
     });
+
+    // Xử lý đăng nhập bằng Google
+    const googleIcon = document.querySelector('.google-icon');
+    if (googleIcon) {
+        googleIcon.addEventListener('click', async function(e) {
+            e.preventDefault();
+            console.log('[Google Login] Clicked Google icon');
+            // Mở popup trực tiếp tới backend, không dùng fetch để tránh lỗi CORS
+            const popup = window.open('http://localhost:8080/create-video-service/auth/google?redirect=login', '_blank', 'width=500,height=600');
+            if (!popup) {
+                alert('Trình duyệt đã chặn popup. Hãy cho phép popup cho trang này!');
+                return;
+            }
+            console.log('[Google Login] Đã mở popup xác thực Google');
+            const timer = setInterval(function() {
+                try {
+                    if (popup.closed) {
+                        clearInterval(timer);
+                        console.log('[Google Login] Popup đã đóng');
+                    } else if (popup.location && popup.location.href.includes('login.html?token=')) {
+                        const url = new URL(popup.location.href);
+                        const token = url.searchParams.get('token');
+                        if (token) {
+                            localStorage.setItem('token', token);
+                            popup.close();
+                            clearInterval(timer);
+                            console.log('[Google Login] Đã lấy được token:', token);
+                            window.location.href = 'homepage.html';
+                        }
+                    }
+                } catch (err) {
+                    // Có thể bị CORS khi chưa redirect về cùng domain
+                }
+            }, 500);
+        });
+    }
 });

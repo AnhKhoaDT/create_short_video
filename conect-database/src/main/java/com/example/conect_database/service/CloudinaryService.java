@@ -112,4 +112,21 @@ public class CloudinaryService {
             throw new RuntimeException("Upload video to Cloudinary failed", e);
         }
     }
+
+    public String uploadTextFile(byte[] textBytes, String folderName) {
+        try {
+            String base64Text = Base64.getEncoder().encodeToString(textBytes);
+            String dataUri = "data:text/plain;base64," + base64Text;
+
+            Map<String, Object> options = new HashMap<>();
+            options.put("folder", folderName); // VD: "subtitle/"
+            options.put("resource_type", "raw");
+
+            Map uploadResult = cloudinary.uploader().upload(dataUri, options);
+
+            return uploadResult.get("secure_url").toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Upload text file to Cloudinary failed", e);
+        }
+    }
 }

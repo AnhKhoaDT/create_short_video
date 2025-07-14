@@ -30,8 +30,21 @@ public class Video {
     @Column(columnDefinition = "TEXT")
     private String title;
 
+
+    @Column(columnDefinition = "TEXT")
+    private String subtitleVttUrl;
+
     @Column(name = "created_at", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
+
+    @Column(name = "youtube_uploaded", nullable = false)
+    private boolean youtubeUploaded = false;
+
+    @Column(name = "youtube_url", columnDefinition = "TEXT")
+    private String youtubeUrl;
+
+    @Column(name = "view_count_youtube", nullable = false)
+    private int viewCountYoutube = 0;
 
     @ManyToMany
     @JoinTable(

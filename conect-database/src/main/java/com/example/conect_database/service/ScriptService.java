@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.example.conect_database.dto.request.SceneImangeUpdataRequest;
 import com.example.conect_database.dto.request.SceneAudioUpdateRequest;
+import com.example.conect_database.dto.request.ScriptUpdateRequest;
+import com.example.conect_database.dto.request.SceneUpdateRequest;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -234,5 +236,34 @@ public class ScriptService {
         for (SceneAudioUpdateRequest req : requests) {
             updateSceneAudioUrl(req.getSceneId(), req.getAudioUrl());
         }
+    }
+
+    public void updateScript(Long scriptId, ScriptUpdateRequest request) {
+        Script script = scriptRepository.findById(scriptId)
+                .orElseThrow(() -> new RuntimeException("Script not found with id: " + scriptId));
+        
+        // Cập nhật title
+        if (request.getTitle() != null) {
+            script.setTitle(request.getTitle());
+        }
+        
+        // Cập nhật các scene
+        if (request.getScenes() != null) {
+            for (SceneUpdateRequest sceneRequest : request.getScenes()) {
+                Scene scene = sceneRepository.findById(sceneRequest.getId())
+                        .orElseThrow(() -> new RuntimeException("Scene not found with id: " + sceneRequest.getId()));
+                
+                if (sceneRequest.getDescription() != null) {
+                    scene.setDescription(sceneRequest.getDescription());
+                }
+                if (sceneRequest.getImagePrompt() != null) {
+                    scene.setImagePrompt(sceneRequest.getImagePrompt());
+                }
+                
+                sceneRepository.save(scene);
+            }
+        }
+        
+        scriptRepository.save(script);
     }
 }

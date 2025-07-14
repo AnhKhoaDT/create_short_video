@@ -55,7 +55,12 @@ public class SecurityConfig {
         "/videos/generate",
         "/videos",
         "/videos/{id}",
-        "/wikipedia"
+        "/videos/{id}/subtitle-vtt",
+        "/scripts/{id}",
+        "/wikipedia",
+        "/youtube/upload",
+        "/auth/**",
+        "/oauth2callback"
     };
 
     @Autowired

@@ -20,13 +20,15 @@ jwt:
 
 google:
   api-key: "AIzaSyChfJLX7tJsS2bFfP03axS_ty6jJnZN8JM"
+  client-id: "21243969772-0qv6o63d8nbmbqddsnvc6ldmor7s9pc3.apps.googleusercontent.com"
+  client-secret: "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"
 
 fpt:
   ai:
     api-key: "NSE8CyLx74lpILOf3FrCIGx9MuRrmfdQ"
 
 image:
-  api-key: "sk-0rN9f1fv5VsXPfTKOipMEq2l9Hi9Hd25Ji0NtPxJ9c9Z2jXl"
+  api-key: "sk-lx4DTIyeje4oEMaYAfPJ8cRtX7RIvSEldunEf69ZTt36NXtL"
 stable:
   diffusion:
     api-url: "https://api.stability.ai/v2beta/stable-image/generate/core"

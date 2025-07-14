@@ -27,8 +27,8 @@ public class TtsService {
     private static final String OUTPUT_DIR = "output";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final long POLLING_INTERVAL_MS = 3000; // 3 seconds
-    private static final int MAX_POLLING_ATTEMPTS = 40; // Max 120 seconds wait
+    private static final long POLLING_INTERVAL_MS = 3000; // 10 seconds
+    private static final int MAX_POLLING_ATTEMPTS = 5; // Max 5 times
 
     @Autowired
     private CloudinaryService cloudinaryService;

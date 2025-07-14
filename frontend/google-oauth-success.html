@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Google OAuth Success</title>
+</head>
+<body>
+  <h2>Đang xác thực Google...</h2>
+  <script>
+    const url = new URL(window.location.href);
+    const token = url.searchParams.get('token');
+    const googleAccessToken = url.searchParams.get('googleAccessToken');
+    if (window.opener && token && googleAccessToken) {
+      window.opener.postMessage({ type: 'GOOGLE_AUTH_SUCCESS', token, googleAccessToken }, '*');
+      window.close();
+    } else if (window.opener && token) {
+      // fallback: chỉ có token (login flow)
+      window.opener.postMessage({ type: 'GOOGLE_AUTH_SUCCESS', token }, '*');
+      window.close();
+    } else {
+      document.body.innerHTML = '<h2>Lỗi xác thực Google!</h2>';
+    }
+  </script>
+</body>
+</html> 

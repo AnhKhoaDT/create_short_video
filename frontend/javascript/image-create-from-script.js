@@ -177,21 +177,184 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Hàm hiển thị kịch bản dạng JSON với các trường in đậm
+    function renderScriptEditor(scriptData) {
+        const container = document.getElementById('scriptEditor');
+        if (!container) return;
+
+        // Ẩn textarea, chỉ hiển thị form JSON editor
+        container.style.display = 'none';
+
+        // Xóa form cũ nếu có
+        let oldEditor = document.querySelector('.script-json-editor');
+        if (oldEditor) oldEditor.remove();
+
+        // Tạo div chứa form chỉnh sửa
+        const editorDiv = document.createElement('div');
+        editorDiv.className = 'script-json-editor';
+        editorDiv.style.padding = '20px';
+        editorDiv.style.border = '1px solid #e5e7eb';
+        editorDiv.style.borderRadius = '8px';
+        editorDiv.style.backgroundColor = '#f9fafb';
+
+        // Tiêu đề
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'title-edit-block mb-4';
+        titleDiv.innerHTML = `
+            <div class="flex items-center mb-2">
+                <b style="color:#374151; min-width:80px;">Tiêu đề:</b>
+                <input type="text" class="title-input w-full border rounded px-3 py-2 ml-2" 
+                       value="${scriptData.title || ''}" placeholder="Nhập tiêu đề kịch bản">
+            </div>
+        `;
+        editorDiv.appendChild(titleDiv);
+
+        // Các scene
+        if (scriptData.scenes && Array.isArray(scriptData.scenes)) {
+            scriptData.scenes.forEach((scene, idx) => {
+                const sceneDiv = document.createElement('div');
+                sceneDiv.className = 'scene-edit-block mb-6 p-4 border border-gray-200 rounded-lg bg-white';
+
+                sceneDiv.innerHTML = `
+                    <div class="flex items-center mb-3">
+                        <b style="color:#374151; min-width:80px;">Cảnh ${scene.sceneNumber}:</b>
+                        <input type="number" value="${scene.sceneNumber}" readonly 
+                               class="w-20 border rounded px-2 py-1 ml-2 bg-gray-100" style="width:60px;">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="flex items-start mb-2">
+                            <b style="color:#374151; min-width:80px;">Mô tả:</b>
+                            <textarea class="desc-input w-full border rounded px-3 py-2 ml-2" rows="3" 
+                                      data-idx="${idx}" placeholder="Nhập mô tả cảnh">${scene.description || ''}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="flex items-start mb-2">
+                            <b style="color:#374151; min-width:80px;">Gợi ý hình ảnh:</b>
+                            <textarea class="img-input w-full border rounded px-3 py-2 ml-2" rows="2" 
+                                      data-idx="${idx}" placeholder="Nhập gợi ý hình ảnh">${scene.imagePrompt || ''}</textarea>
+                        </div>
+                    </div>
+                `;
+
+                editorDiv.appendChild(sceneDiv);
+            });
+        }
+
+        // Gắn form vào DOM ngay sau textarea
+        container.parentNode.insertBefore(editorDiv, container.nextSibling);
+    }
+
+    // Hàm lưu chỉnh sửa kịch bản
+    function saveScriptEdits(scriptData) {
+        // Cập nhật title
+        const titleInput = document.querySelector('.title-input');
+        if (titleInput) {
+            scriptData.title = titleInput.value;
+        }
+        
+        // Cập nhật các scene
+        document.querySelectorAll('.desc-input').forEach(input => {
+            const idx = parseInt(input.dataset.idx);
+            if (scriptData.scenes && scriptData.scenes[idx]) {
+                scriptData.scenes[idx].description = input.value;
+            }
+        });
+        
+        document.querySelectorAll('.img-input').forEach(input => {
+            const idx = parseInt(input.dataset.idx);
+            if (scriptData.scenes && scriptData.scenes[idx]) {
+                scriptData.scenes[idx].imagePrompt = input.value;
+            }
+        });
+        
+        // Lưu lại vào localStorage
+        localStorage.setItem('createdScriptContent', JSON.stringify(scriptData));
+        
+        // Gọi API cập nhật backend
+        updateScriptOnBackend(scriptData);
+    }
+
+    // Hàm gọi API cập nhật backend
+    async function updateScriptOnBackend(scriptData) {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Vui lòng đăng nhập lại!');
+                return;
+            }
+
+            const response = await fetch(`http://localhost:8080/create-video-service/scripts/${scriptData.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    title: scriptData.title,
+                    scenes: scriptData.scenes.map(scene => ({
+                        id: scene.id,
+                        sceneNumber: scene.sceneNumber,
+                        description: scene.description,
+                        imagePrompt: scene.imagePrompt
+                    }))
+                })
+            });
+
+            if (response.ok) {
+                alert('Đã lưu kịch bản thành công!');
+            } else {
+                const errorText = await response.text();
+                alert('Lỗi khi lưu kịch bản: ' + errorText);
+            }
+        } catch (error) {
+            console.error('Lỗi khi cập nhật kịch bản:', error);
+            alert('Lỗi khi lưu kịch bản: ' + error.message);
+        }
+    }
+
     if (editScriptBtn && scriptEditor) {
         editScriptBtn.addEventListener('click', () => {
-            if (scriptEditor.hasAttribute('readonly')) {
-                // Chuyển sang cho phép sửa
-                scriptEditor.removeAttribute('readonly');
+            const scriptData = JSON.parse(localStorage.getItem('createdScriptContent') || '{}');
+            
+            // Kiểm tra xem có form JSON editor đang hiển thị không
+            const jsonEditor = document.querySelector('.script-json-editor');
+            
+            if (!jsonEditor) {
+                // Chuyển sang hiển thị form chỉnh sửa JSON
+                scriptEditor.style.display = 'none';
+                renderScriptEditor(scriptData);
                 editScriptBtn.innerHTML = `<iconify-icon icon="mdi:content-save" class="mr-1"></iconify-icon>Lưu kịch bản`;
-                scriptEditor.focus();
             } else {
-                // Lưu lại và chuyển về readonly
-                scriptEditor.setAttribute('readonly', true);
+                // Lưu lại và chuyển về hiển thị text
+                saveScriptEdits(scriptData);
+                
+                // Xóa form JSON editor
+                jsonEditor.remove();
+                
+                // Hiển thị lại textarea và đảm bảo nó hiển thị đúng
+                scriptEditor.style.display = 'block';
+                scriptEditor.style.visibility = 'visible';
+                scriptEditor.style.position = 'static';
+                scriptEditor.setAttribute('readonly', 'readonly');
                 editScriptBtn.innerHTML = `<iconify-icon icon="mdi:refresh" class="mr-1"></iconify-icon>Chỉnh sửa kịch bản`;
-                localStorage.setItem('createdScriptContent', JSON.stringify({
-                    content: scriptEditor.value
-                }));
-                alert('Đã lưu kịch bản!');
+                
+                // Cập nhật lại nội dung textarea
+                let content = `Tiêu đề: ${scriptData.title || ''}\n\n`;
+                if (scriptData.scenes) {
+                    scriptData.scenes.forEach(scene => {
+                        content += `Cảnh ${scene.sceneNumber}:\n`;
+                        content += `Mô tả: ${scene.description || ''}\n`;
+                        content += `Gợi ý hình ảnh: ${scene.imagePrompt || ''}\n\n`;
+                    });
+                }
+                scriptEditor.value = content.trim();
+                
+                // Debug: kiểm tra xem textarea có hiển thị không
+                console.log('ScriptEditor display style:', scriptEditor.style.display);
+                console.log('ScriptEditor visibility:', scriptEditor.offsetParent !== null);
             }
         });
     }
@@ -235,11 +398,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             scenes.forEach(scene => {
                 if (scene.images.length > 0) {
                     scene.selectedImage = scene.images[0];
+                    localStorage.setItem('imgScene' + scene.sceneNumber, scene.selectedImage);
                 }
             });
         } else {
             scenes.forEach(scene => {
                 scene.selectedImage = null;
+                localStorage.removeItem('imgScene' + scene.sceneNumber);
             });
         }
         saveScenesToLocalStorage();
@@ -515,10 +680,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             modal.className = 'modal';
             modal.style = 'display:block; position:fixed; z-index:1000; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5);';
             modal.innerHTML = `
-              <div class="modal-content" style="background:#fff; margin:5% auto; padding:20px; border-radius:8px; width:80%; max-width:800px;">
+              <div class="modal-content" style="background:#fff; margin:5% auto; padding:20px; border-radius:8px; width:80%; max-width:800px; max-height:80vh; display:flex; flex-direction:column;">
                 <span id="closeImageModal" class="close" style="float:right; font-size:24px; cursor:pointer;">&times;</span>
                 <h2>Chọn ảnh từ thư viện</h2>
-                <div id="modalImageList" class="image-grid" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+                <div id="modalImageList" class="image-grid" style="flex:1 1 auto; overflow-y:auto; min-height:120px; max-height:50vh; display:flex; flex-wrap:wrap; gap:10px;"></div>
                 <div style="margin-top:20px; text-align:right;">
                     <button id="okSelectImageBtn" class="bg-blue-500 text-white px-4 py-2 rounded mr-2" disabled>OK</button>
                     <button id="closeImageModalBtn" class="bg-gray-400 text-white px-4 py-2 rounded">Đóng</button>

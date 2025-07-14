@@ -77,7 +77,7 @@ public class ImageService {
             MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
             bodyBuilder.part("prompt", promptText);
             bodyBuilder.part("output_format", "png");
-            bodyBuilder.part("width", "1024");
+            bodyBuilder.part("width", "1280");
             bodyBuilder.part("height", "1024");
             bodyBuilder.part("steps", "30");
             bodyBuilder.part("seed", "0");

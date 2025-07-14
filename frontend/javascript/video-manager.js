@@ -120,7 +120,7 @@ async function loadHomepageVideos() {
                     <div class="video-title">${video.title || 'Video ' + video.id}</div>
                     <div class="video-desc">${video.description || 'Mô tả video'}</div>
                     <div class="video-stats">
-                        <span class="view-count"><iconify-icon icon="mdi:eye"></iconify-icon> 0 lượt xem</span>
+                        <span class="view-count"><iconify-icon icon="mdi:eye"></iconify-icon> ${video.viewCountYoutube || 0} lượt xem</span>
                     </div>
                     <!-- Action buttons -->
                     <div class="video-actions-compact flex justify-center gap-2">

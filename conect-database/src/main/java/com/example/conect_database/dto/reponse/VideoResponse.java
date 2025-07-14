@@ -8,6 +8,11 @@ public class VideoResponse {
     public String title;
     public String description;
     public Long scriptId;
+    public String subtitleVttUrl;
+    public boolean youtubeUploaded;
+    public String youtubeUrl;
+    public int youtubeViewCount;
+    public int viewCountYoutube;
 
     public VideoResponse(Video video) {
         this.id = video.getId();
@@ -15,5 +20,9 @@ public class VideoResponse {
         this.title = video.getTitle();
         this.description = video.getDescription();
         this.scriptId = video.getScript() != null ? video.getScript().getId() : null;
+        this.subtitleVttUrl = video.getSubtitleVttUrl();
+        this.youtubeUploaded = video.isYoutubeUploaded();
+        this.youtubeUrl = video.getYoutubeUrl();
+        this.viewCountYoutube = video.getViewCountYoutube();
     }
 } 
